@@ -189,11 +189,8 @@ target_include_directories(db
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include
         ${TCL_INCLUDE_PATH}
-)
-
-target_link_libraries(db
     PRIVATE
-        Boost::headers
+        ${Boost_INCLUDE_DIRS}
 )
 
 set_target_properties(db

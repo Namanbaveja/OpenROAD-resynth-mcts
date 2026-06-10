@@ -41,7 +41,6 @@
 #include "frProfileTask.h"
 #include "frRTree.h"
 #include "global.h"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/dbObject.h"
 #include "odb/dbShape.h"
@@ -362,7 +361,7 @@ void io::Parser::setVias(odb::dbBlock* block)
             utl::DRT, 337, "Duplicated via definition for {}", via->getName());
       }
     } else {
-      std::map<frLayerNum, odb::PtrSet<odb::dbBox>> lNum2Int;
+      std::map<frLayerNum, std::set<odb::dbBox*>> lNum2Int;
       for (auto box : via->getBoxes()) {
         if (getTech()->name2layer_.find(box->getTechLayer()->getName())
             == getTech()->name2layer_.end()) {
@@ -1207,7 +1206,7 @@ void io::Parser::setBTerms_addPinFig_helper(frBPin* pinIn,
 
 void io::Parser::setAccessPoints(odb::dbDatabase* db)
 {
-  odb::PtrMap<odb::dbAccessPoint, frAccessPoint*> ap_map;
+  std::map<odb::dbAccessPoint*, frAccessPoint*> ap_map;
   for (auto& master : getDesign()->getMasters()) {
     auto db_master = db->findMaster(master->getName().c_str());
     for (auto& term : master->getTerms()) {
@@ -1256,7 +1255,7 @@ void io::Parser::setAccessPoints(odb::dbDatabase* db)
       }
 
       auto db_aps = db_term->getPrefAccessPoints();
-      odb::PtrMap<odb::dbMPin, odb::dbAccessPoint*> db_aps_map;
+      std::map<odb::dbMPin*, odb::dbAccessPoint*> db_aps_map;
       for (auto db_ap : db_aps) {
         if (ap_map.find(db_ap) == ap_map.end()) {
           logger_->error(DRT,

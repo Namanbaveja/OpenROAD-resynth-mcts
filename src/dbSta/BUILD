@@ -25,9 +25,10 @@ cc_library(
     deps = [
         ":dbNetwork",
         ":dbSdcNetwork",
-        "//src/odb/src/db",
+        "//src/odb",
         "//src/sta:opensta_lib",
         "//src/utl",
+        "@abseil-cpp//absl/synchronization",
         "@boost.json",
         "@spdlog",
         "@tcl_lang//:tcl",
@@ -48,7 +49,7 @@ cc_library(
     deps = [
         ":dbNetwork",
         ":dbSta",
-        "//src/odb/src/db",
+        "//src/odb",
         "//src/sta:opensta_lib",
         "//src/utl",
     ],
@@ -68,7 +69,7 @@ cc_library(
     deps = [
         ":dbNetwork",
         ":dbSta",
-        "//src/odb/src/db",
+        "//src/odb",
         "//src/sta:opensta_lib",
         "//src/utl",
     ],
@@ -83,9 +84,8 @@ cc_library(
         "src/dbSdcNetwork.hh",
     ],
     includes = [
-        "src",
+        "include",
     ],
-    visibility = ["//visibility:private"],
     deps = [
         "//src/sta:opensta_lib",
         "@spdlog",
@@ -105,8 +105,10 @@ cc_library(
     ],
     deps = [
         ":dbSta",
-        "//src/odb/src/db",
+        "//src/odb",
+        "//src/sta:opensta_lib",
         "//src/utl",
+        "@spdlog",
     ],
 )
 
@@ -124,7 +126,7 @@ cc_library(
         "include",
     ],
     deps = [
-        "//src/odb/src/db",
+        "//src/odb",
         "//src/sta:opensta_lib",
         "//src/utl",
     ],
@@ -154,7 +156,7 @@ cc_library(
         ":dbNetwork",
         ":dbSta",
         "//:ord",
-        "//src/odb/src/db",
+        "//src/odb",
         "//src/sta:opensta_lib",
         "//src/utl",
         "@boost.json",

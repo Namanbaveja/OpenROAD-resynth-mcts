@@ -13,7 +13,6 @@
 
 #include "domain.h"
 #include "grid.h"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/dbSet.h"
 #include "odb/isotropy.h"
@@ -642,7 +641,7 @@ void SRoute::createSrouteWires(
         }
       }
     }
-    odb::PtrMap<odb::dbNet, odb::dbSWire*> net_map;
+    std::map<odb::dbNet*, odb::dbSWire*> net_map;
 
     net_map[net] = nwsw;
     auto domains = getDomains();

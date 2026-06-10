@@ -1,3 +1,5 @@
+if (ENABLE_TESTS)
+
 or_integration_tests(
   "rmp"
   TESTS
@@ -22,9 +24,12 @@ or_integration_tests(
     gcd_annealing2
     aes_genetic
     gcd_genetic
+    aes_iterative
+    gcd_iterative
+    aes_mcts
+    gcd_mcts
+    gcd_mcts_hops
 )
 
-
-if (ENABLE_TESTS)
     add_subdirectory(cpp)
 endif()

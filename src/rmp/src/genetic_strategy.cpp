@@ -76,7 +76,7 @@ std::vector<GiaOp> GeneticStrategy::RunStrategy(
 
   for (auto& candidate : population) {
     (void) candidate.Evaluate(
-        candidate_vertices, abc_library, corner_, sta, name_generator, logger);
+        candidate_vertices, abc_library, corner_, sta, name_generator, resizer, logger);
 
     debugPrint(logger, RMP, "genetic", 1, candidate.toString());
   }
@@ -121,6 +121,7 @@ std::vector<GiaOp> GeneticStrategy::RunStrategy(
                                 corner_,
                                 sta,
                                 name_generator,
+                                resizer,
                                 logger);
     }
     // Selection

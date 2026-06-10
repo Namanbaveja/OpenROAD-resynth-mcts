@@ -162,7 +162,6 @@ if(ENABLE_TESTS)
     PRIVATE
     ${FLEXROUTE_HOME}/src
     ${OPENROAD_HOME}/include
-    ${OPENROAD_HOME}
   )
 
   target_link_libraries(trTest

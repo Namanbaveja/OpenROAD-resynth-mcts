@@ -2,8 +2,6 @@
 // Copyright (c) 2026, The OpenROAD Authors
 
 %{
-#include <cstdlib>
-
 #include "ord/OpenRoad.hh"
 #include "web/web.h"
 %}
@@ -26,11 +24,6 @@ web_server_wait_cmd()
 {
   web::WebServer *server = ord::OpenRoad::openRoad()->getWebServer();
   server->waitForStop();
-  // If `exit` was typed in the browser tcl widget, do the real process
-  // exit here on the main thread (workers are already joined).
-  if (server->exitRequested()) {
-    std::exit(EXIT_SUCCESS);
-  }
 }
 
 void

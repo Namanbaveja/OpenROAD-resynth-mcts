@@ -26,7 +26,7 @@ cc_library(
     deps = [
         "//src/dbSta",
         "//src/dbSta:dbNetwork",
-        "//src/odb/src/db",
+        "//src/odb",
         "//src/sta:opensta_lib",
         "//src/upf",
         "//src/utl",
@@ -52,7 +52,7 @@ cc_library(
         "//:ord",
         "//src/dbSta",
         "//src/gui",
-        "//src/odb/src/db",
+        "//src/odb",
         "//src/sta:opensta_lib",
         "//src/utl",
         "@boost.stacktrace",

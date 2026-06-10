@@ -33,6 +33,11 @@ COMPULSORY_TESTS = [
     "gcd_annealing2",
     "aes_genetic",
     "gcd_genetic",
+    "aes_iterative",
+    "gcd_iterative",
+    "aes_mcts",
+    "gcd_mcts",
+    "gcd_mcts_hops",
 ]
 
 ALL_TESTS = COMPULSORY_TESTS
@@ -129,6 +134,11 @@ LONG_RUNNING_TESTS = [
     "aes_annealing",
     "gcd_annealing1",
     "gcd_annealing2",
+    "aes_iterative",
+    "gcd_iterative",
+    "aes_mcts",
+    "gcd_mcts",
+    "gcd_mcts_hops",
 ]
 
 [
@@ -156,19 +166,23 @@ cc_test(
         "Nangate45/Nangate45_typ.lib",
         "aes_nangate45.v",
     ],
+    features = ["-layering_check"],  # TODO: includes private headers
+    includes = [
+        "../src",
+    ],
     deps = [
         "//src/cut",
         "//src/dbSta",
         "//src/dbSta:dbReadVerilog",
-        "//src/odb/src/db",
-        "//src/odb/src/lefin",
-        "//src/rmp:optimization_strategies",
+        "//src/odb",
+        "//src/rmp",
         "//src/sta:opensta_lib",
         "//src/tst",
         "//src/utl",
         "@abc",
         "@googletest//:gtest",
         "@googletest//:gtest_main",
+        "@tcl_lang//:tcl",
     ],
 )
 
@@ -183,19 +197,23 @@ cc_test(
         "Nangate45/Nangate45_typ.lib",
         "aes_nangate45.v",
     ],
+    features = ["-layering_check"],  # TODO: includes private headers
+    includes = [
+        "../src",
+    ],
     deps = [
         "//src/cut",
         "//src/dbSta",
         "//src/dbSta:dbReadVerilog",
-        "//src/odb/src/db",
-        "//src/odb/src/lefin",
-        "//src/rmp:optimization_strategies",
+        "//src/odb",
+        "//src/rmp",
         "//src/sta:opensta_lib",
         "//src/tst",
         "//src/utl",
         "@abc",
         "@googletest//:gtest",
         "@googletest//:gtest_main",
+        "@tcl_lang//:tcl",
     ],
 )
 

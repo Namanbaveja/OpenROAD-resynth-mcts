@@ -71,7 +71,9 @@ void Opendp::diamondDPL()
   setFixedGridCells();
   // Paint initially place2d cells (respecting already legalized ones).
   if (incremental_) {
-    logger_->report("setInitialGridCells()");
+    if (!silent_) {
+      logger_->report("setInitialGridCells()");
+    }
     setInitialGridCells();
   }
   // group mapping & x_axis dummycell insertion
@@ -417,23 +419,25 @@ void Opendp::place()
   const size_t total_cells = sorted_cells.size();
   const int success_rip_up = failed_diamond_move - failed_rip_up;
 
-  logger_->report("Movements Summary");
-  logger_->report("---------------------------------------");
-  logger_->report("Total cells:                {:8d}", total_cells);
-  logger_->report(
-      "Diamond Move Success:       {:8d} ({:6.2f}%)",
-      success_diamond_move,
-      total_cells > 0 ? 100.0 * success_diamond_move / total_cells : 0.0);
-  logger_->report("Diamond Move Failure:       {:8d}", failed_diamond_move);
-  logger_->report(
-      "Rip-up and replace Success: {:8d} ({:6.2f}% of diamond failures)",
-      success_rip_up,
-      failed_diamond_move > 0 ? 100.0 * success_rip_up / failed_diamond_move
-                              : 0.0);
-  logger_->report("Rip-up and replace Failure: {:8d}", failed_rip_up);
-  logger_->report("Total Placement Failures:   {:8d}",
-                  (int) placement_failures_.size());
-  logger_->report("---------------------------------------");
+  if (!silent_) {
+    logger_->report("Movements Summary");
+    logger_->report("---------------------------------------");
+    logger_->report("Total cells:                {:8d}", total_cells);
+    logger_->report(
+        "Diamond Move Success:       {:8d} ({:6.2f}%)",
+        success_diamond_move,
+        total_cells > 0 ? 100.0 * success_diamond_move / total_cells : 0.0);
+    logger_->report("Diamond Move Failure:       {:8d}", failed_diamond_move);
+    logger_->report(
+        "Rip-up and replace Success: {:8d} ({:6.2f}% of diamond failures)",
+        success_rip_up,
+        failed_diamond_move > 0 ? 100.0 * success_rip_up / failed_diamond_move
+                                : 0.0);
+    logger_->report("Rip-up and replace Failure: {:8d}", failed_rip_up);
+    logger_->report("Total Placement Failures:   {:8d}",
+                    (int) placement_failures_.size());
+    logger_->report("---------------------------------------");
+  }
 }
 
 void Opendp::placeGroups2()
@@ -1211,8 +1215,7 @@ bool Opendp::moveHopeless(const Node* cell, GridX& grid_x, GridY& grid_y) const
   const DbuX site_width = grid_->getSiteWidth();
 
   for (GridX x = grid_x - 1; x >= 0; --x) {  // left
-    const Pixel& p = grid_->pixel(grid_y, x);
-    if (p.is_valid && !p.is_hopeless) {
+    if (grid_->pixel(grid_y, x).is_valid) {
       best_dist = gridToDbu(grid_x - x - 1, site_width).v;
       best_x = x;
       best_y = grid_y;
@@ -1220,8 +1223,7 @@ bool Opendp::moveHopeless(const Node* cell, GridX& grid_x, GridY& grid_y) const
     }
   }
   for (GridX x = grid_x + 1; x < site_count; ++x) {  // right
-    const Pixel& p = grid_->pixel(grid_y, x);
-    if (p.is_valid && !p.is_hopeless) {
+    if (grid_->pixel(grid_y, x).is_valid) {
       const int dist = gridToDbu(x - grid_x, site_width).v - cell->getWidth().v;
       if (dist < best_dist) {
         best_dist = dist;
@@ -1232,8 +1234,7 @@ bool Opendp::moveHopeless(const Node* cell, GridX& grid_x, GridY& grid_y) const
     }
   }
   for (GridY y = grid_y - 1; y >= 0; --y) {  // below
-    const Pixel& p = grid_->pixel(y, grid_x);
-    if (p.is_valid && !p.is_hopeless) {
+    if (grid_->pixel(y, grid_x).is_valid) {
       const int dist = (grid_->gridYToDbu(grid_y) - grid_->gridYToDbu(y)).v;
       if (dist < best_dist) {
         best_dist = dist;
@@ -1244,8 +1245,7 @@ bool Opendp::moveHopeless(const Node* cell, GridX& grid_x, GridY& grid_y) const
     }
   }
   for (GridY y = grid_y + 1; y < row_count; ++y) {  // above
-    const Pixel& p = grid_->pixel(y, grid_x);
-    if (p.is_valid && !p.is_hopeless) {
+    if (grid_->pixel(y, grid_x).is_valid) {
       const int dist = (grid_->gridYToDbu(y) - grid_->gridYToDbu(grid_y)).v;
       if (dist < best_dist) {
         best_dist = dist;
@@ -1269,6 +1269,47 @@ void Opendp::initMacrosAndGrid()
   adjustNodesOrient();
   initGrid();
   setFixedGridCells();
+}
+
+int Opendp::legalizeNewCellsIncremental(const int max_disp_x,
+                                        const int max_disp_y)
+{
+  incremental_ = true;
+  silent_ = true;
+  importDb();
+  adjustNodesOrient();
+  max_displacement_x_ = (max_disp_x == 0) ? 500 : max_disp_x;
+  max_displacement_y_ = (max_disp_y == 0) ? 100 : max_disp_y;
+  diamondDPL();
+
+  // Recovery pass: ripUpAndReplace can evict an existing cell to make room for
+  // a new cell and then fail to re-place that existing cell within the tight
+  // displacement window.  The evicted cell stays with its original left/bottom
+  // in the DPL model while another cell was placed at the same grid site.
+  // updateDbInstLocations() would write both to the same ODB coordinate,
+  // causing a physical overlap.  Re-try every failure with a full-design search
+  // radius so every remaining free site is reachable.
+  if (!placement_failures_.empty()) {
+    const int save_x = max_displacement_x_;
+    const int save_y = max_displacement_y_;
+    max_displacement_x_ = grid_->getRowSiteCount().v;
+    max_displacement_y_ = grid_->getRowCount().v;
+    std::vector<Node*> still_failed;
+    for (Node* cell : placement_failures_) {
+      if (!diamondMove(cell)) {
+        still_failed.push_back(cell);
+      }
+    }
+    placement_failures_ = std::move(still_failed);
+    max_displacement_x_ = save_x;
+    max_displacement_y_ = save_y;
+  }
+
+  updateDbInstLocations();
+  const int failures = static_cast<int>(placement_failures_.size());
+  silent_ = false;
+  incremental_ = false;
+  return failures;
 }
 
 void Opendp::convertDbToCell(odb::dbInst* db_inst, Node& cell)

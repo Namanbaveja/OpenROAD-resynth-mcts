@@ -20,7 +20,6 @@
 #include "db_sta/dbNetwork.hh"
 #include "mpl-util.h"
 #include "object.h"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/dbTypes.h"
 #include "odb/geom.h"
@@ -85,7 +84,7 @@ void ClusteringEngine::setTree(PhysicalHierarchy* tree)
 
 void ClusteringEngine::setHalos(
     const HardMacro::Halo& base_halo,
-    const odb::PtrMap<odb::dbInst, HardMacro::Halo>& macro_to_halo)
+    const std::map<odb::dbInst*, HardMacro::Halo>& macro_to_halo)
 {
   base_halo_ = base_halo;
   macro_to_halo_ = macro_to_halo;
@@ -1119,7 +1118,7 @@ void ClusteringEngine::breakLargeFlatCluster(Cluster* parent)
   const int num_other_cluster_vertices = vertex_id;
 
   std::vector<odb::dbInst*> insts;
-  odb::PtrMap<odb::dbInst, int> inst_vertex_id_map;
+  std::map<odb::dbInst*, int> inst_vertex_id_map;
   for (auto& macro : parent->getLeafMacros()) {
     inst_vertex_id_map[macro] = vertex_id++;
     vertex_weight.push_back(block_->dbuAreaToMicrons(computeArea(macro)));
@@ -2116,7 +2115,7 @@ void ClusteringEngine::createTempMacroClusters(
     std::vector<HardMacro>& sa_macros,
     UniqueClusterVector& macro_clusters,
     std::map<int, int>& cluster_to_macro,
-    odb::PtrSet<odb::dbMaster>& masters)
+    std::set<odb::dbMaster*>& masters)
 {
   int macro_id = 0;
   std::string cluster_name;

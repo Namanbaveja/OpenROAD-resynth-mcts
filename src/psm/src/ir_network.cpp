@@ -20,7 +20,6 @@
 #include "boost/polygon/polygon.hpp"
 #include "connection.h"
 #include "node.h"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/dbShape.h"
 #include "odb/dbTransform.h"
@@ -1112,9 +1111,9 @@ odb::dbTechLayer* IRNetwork::getTopLayer() const
   return nodes_.rbegin()->first;
 }
 
-odb::PtrSet<odb::dbTechLayer> IRNetwork::getLayers() const
+std::set<odb::dbTechLayer*> IRNetwork::getLayers() const
 {
-  odb::PtrSet<odb::dbTechLayer> layers;
+  std::set<odb::dbTechLayer*> layers;
   for (const auto& [layer, nodes] : nodes_) {
     layers.insert(layer);
   }
@@ -1136,13 +1135,12 @@ IRNetwork::NodeTree IRNetwork::getTopLayerNodeTree() const
   return getNodeTree(getTopLayer());
 }
 
-odb::PtrMap<odb::dbInst, Node::NodeSet> IRNetwork::getInstanceNodeMapping()
-    const
+std::map<odb::dbInst*, Node::NodeSet> IRNetwork::getInstanceNodeMapping() const
 {
   const utl::DebugScopedTimer timer(
       logger_, utl::PSM, "timer", 1, "Generate instance node map: {}");
 
-  odb::PtrMap<odb::dbInst, Node::NodeSet> inst_nodes;
+  std::map<odb::dbInst*, Node::NodeSet> inst_nodes;
   for (const auto& node : iterm_nodes_) {
     odb::dbITerm* iterm = node->getITerm();
     odb::dbInst* inst = iterm->getInst();
@@ -1276,7 +1274,7 @@ Node::NodeSet IRNetwork::getBPinShapeNodes() const
     return {};
   }
 
-  odb::PtrMap<odb::dbTechLayer, std::set<odb::Rect>> nodes;
+  std::map<odb::dbTechLayer*, std::set<odb::Rect>> nodes;
   for (const auto& bpin : bpin_nodes_) {
     if (bpin->shouldConnect()) {
       nodes[bpin->getLayer()].insert(bpin->getShape());

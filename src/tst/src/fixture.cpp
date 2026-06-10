@@ -22,10 +22,6 @@
 #include "sta/Sta.hh"
 #include "tcl.h"  // IWYU pragma: keep (clang-tidy, you're drunk)
 
-#ifdef BAZEL_BUILD
-#include "tools/cpp/runfiles/runfiles.h"
-#endif
-
 namespace tst {
 
 namespace {

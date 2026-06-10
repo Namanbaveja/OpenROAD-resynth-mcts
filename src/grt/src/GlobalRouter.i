@@ -111,24 +111,6 @@ set_resistance_aware(bool resistance_aware)
 }
 
 void
-set_snapshot_batched_width(int snapshot_batched_width)
-{
-  getGlobalRouter()->setSnapshotBatchedWidth(snapshot_batched_width);
-}
-
-int
-get_snapshot_batched_width()
-{
-  return getGlobalRouter()->getSnapshotBatchedWidth();
-}
-
-int
-get_snapshot_batch_count()
-{
-  return getGlobalRouter()->getSnapshotBatchCount();
-}
-
-void
 set_critical_nets_percentage(float criticalNetsPercentage)
 {
   getGlobalRouter()->setCriticalNetsPercentage(criticalNetsPercentage);
@@ -196,8 +178,6 @@ void end_incremental()
 void
 global_route()
 {
-  const int num_threads = ord::OpenRoad::openRoad()->getThreadCount();
-  getGlobalRouter()->setNumThreads(num_threads);
   getGlobalRouter()->globalRoute(true);
 }
 

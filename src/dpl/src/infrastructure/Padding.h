@@ -6,9 +6,8 @@
 #include <map>
 #include <utility>
 
+#include "Coordinates.h"
 #include "dpl/Opendp.h"
-#include "infrastructure/Coordinates.h"  // IWYU pragma: keep (GridX type)
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 
 namespace dpl {
@@ -33,8 +32,8 @@ class Padding
   DbuX paddedWidth(const Node* cell) const;
 
  private:
-  using InstPaddingMap = odb::PtrMap<odb::dbInst, std::pair<GridX, GridX>>;
-  using MasterPaddingMap = odb::PtrMap<odb::dbMaster, std::pair<GridX, GridX>>;
+  using InstPaddingMap = std::map<odb::dbInst*, std::pair<GridX, GridX>>;
+  using MasterPaddingMap = std::map<odb::dbMaster*, std::pair<GridX, GridX>>;
 
   GridX pad_left_{0};
   GridX pad_right_{0};

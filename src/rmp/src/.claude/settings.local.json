@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /home/mani-deep-g/Desktop/Naman/src_final -name \"Restructure.h\")",
+      "Read(//home/mani-deep-g/Desktop/Naman/src_final/**)",
+      "Bash(find /home/mani-deep-g/Desktop/Naman/src_final -type d | sort)",
+      "Bash(find /home/mani-deep-g/Desktop/Naman -name \"Restructure.h\" 2>/dev/null | head -5)",
+      "Read(//home/mani-deep-g/Desktop/Naman/**)"
+    ]
+  }
+}

@@ -856,11 +856,13 @@ void PlacerBaseCommon::init()
 
   log_->info(GPL,
              36,
-             "Movable instances area:     {:10.3f} um^2",
+             format_label_um2,
+             "Movable instances area:",
              block->dbuAreaToMicrons(movable_area));
   log_->info(GPL,
              37,
-             "Total instances area:       {:10.3f} um^2",
+             format_label_um2,
+             "Total instances area:",
              block->dbuAreaToMicrons(total_area));
 
   double avg_density
@@ -907,7 +909,8 @@ void PlacerBaseCommon::init()
 
   log_->info(GPL,
              35,
-             "Pin density area adjust:    {:10.3f} um^2",
+             format_label_um2,
+             "Pin density area adjust:",
              block->dbuAreaToMicrons(total_adjustment_area));
 
   instMap_.reserve(instStor_.size());
@@ -1410,18 +1413,22 @@ void PlacerBase::printInfo(bool check_density) const
   dbBlock* block = db_->getChip()->getBlock();
   log_->info(GPL,
              6,
-             "Number of instances:        {:10}",
+             format_label_int,
+             "Number of instances:",
              placeInsts_.size() + fixedInsts_.size() + dummyInsts_.size());
-  log_->info(GPL, 7, "Movable instances:          {:10}", placeInsts_.size());
-  log_->info(GPL, 8, "Fixed instances:            {:10}", fixedInsts_.size());
-  log_->info(GPL, 9, "Dummy instances:            {:10}", dummyInsts_.size());
+  log_->info(
+      GPL, 7, format_label_int, "Movable instances:", placeInsts_.size());
+  log_->info(GPL, 8, format_label_int, "Fixed instances:", fixedInsts_.size());
+  log_->info(GPL, 9, format_label_int, "Dummy instances:", dummyInsts_.size());
   log_->info(GPL,
              10,
-             "Number of nets:             {:10}",
+             format_label_int,
+             "Number of nets:",
              pbCommon_->getNets().size());
   log_->info(GPL,
              11,
-             "Number of pins:             {:10}",
+             format_label_int,
+             "Number of pins:",
              pbCommon_->getPins().size());
 
   log_->info(GPL,
@@ -1446,7 +1453,8 @@ void PlacerBase::printInfo(bool check_density) const
 
   log_->info(GPL,
              16,
-             "Core area:                  {:10.3f} um^2",
+             format_label_um2,
+             "Core area:",
              block->dbuAreaToMicrons(die_.coreArea()));
   log_->info(GPL,
              14,
@@ -1454,27 +1462,32 @@ void PlacerBase::printInfo(bool check_density) const
              (group_ != nullptr) ? group_->getName() : "top-level");
   log_->info(GPL,
              15,
-             "Region area:                {:10.3f} um^2",
+             format_label_um2,
+             "Region area:",
              block->dbuAreaToMicrons(region_area_));
   log_->info(GPL,
              17,
-             "Fixed instances area:       {:10.3f} um^2",
+             format_label_um2,
+             "Fixed instances area:",
              block->dbuAreaToMicrons(nonPlaceInstsArea_));
 
   log_->info(GPL,
              18,
-             "Movable instances area:     {:10.3f} um^2",
+             format_label_um2,
+             "Movable instances area:",
              block->dbuAreaToMicrons(placeInstsArea_));
   log_->info(GPL, 19, "{:27} {:10.3f} %", "Utilization:", util);
 
   log_->info(GPL,
              20,
-             "Standard cells area:        {:10.3f} um^2",
+             format_label_um2,
+             "Standard cells area:",
              block->dbuAreaToMicrons(stdInstsArea_));
 
   log_->info(GPL,
              21,
-             "Large instances area:       {:10.3f} um^2",
+             format_label_um2,
+             "Large instances area:",
              block->dbuAreaToMicrons(macroInstsArea_));
 
   if (check_density && util >= 100.1) {

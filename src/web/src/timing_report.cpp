@@ -12,9 +12,9 @@
 #include <utility>
 #include <vector>
 
-#include "boost/json/array.hpp"
 #include "db_sta/dbNetwork.hh"
 #include "db_sta/dbSta.hh"
+#include "json_builder.h"
 #include "odb/db.h"
 #include "sta/Clock.hh"
 #include "sta/ExceptionPath.hh"
@@ -544,98 +544,92 @@ ChartFilters TimingReport::getChartFilters() const
 
 // ── JSON serialization helpers ──
 
-boost::json::object serializeTimingNode(const TimingNode& n)
+void serializeTimingNode(JsonBuilder& b, const TimingNode& n)
 {
-  boost::json::object o;
-  o["pin"] = n.pin_name;
-  o["fanout"] = n.fanout;
-  o["rise"] = n.is_rising;
-  o["clk"] = n.is_clock;
-  o["time"] = n.time;
-  o["delay"] = n.delay;
-  o["slew"] = n.slew;
-  o["load"] = n.load;
-  return o;
+  b.beginObject();
+  b.field("pin", n.pin_name);
+  b.field("fanout", n.fanout);
+  b.field("rise", n.is_rising);
+  b.field("clk", n.is_clock);
+  b.field("time", n.time);
+  b.field("delay", n.delay);
+  b.field("slew", n.slew);
+  b.field("load", n.load);
+  b.endObject();
 }
 
-boost::json::object serializeTimingPath(const TimingPathSummary& p)
+void serializeTimingPath(JsonBuilder& b, const TimingPathSummary& p)
 {
-  boost::json::object o;
-  o["start_clk"] = p.start_clk;
-  o["end_clk"] = p.end_clk;
-  o["required"] = p.required;
-  o["arrival"] = p.arrival;
-  o["slack"] = p.slack;
-  o["skew"] = p.skew;
-  o["path_delay"] = p.path_delay;
-  o["logic_depth"] = p.logic_depth;
-  o["fanout"] = p.fanout;
-  o["start_pin"] = p.start_pin;
-  o["end_pin"] = p.end_pin;
-  boost::json::array data;
-  data.reserve(p.data_nodes.size());
+  b.beginObject();
+  b.field("start_clk", p.start_clk);
+  b.field("end_clk", p.end_clk);
+  b.field("required", p.required);
+  b.field("arrival", p.arrival);
+  b.field("slack", p.slack);
+  b.field("skew", p.skew);
+  b.field("path_delay", p.path_delay);
+  b.field("logic_depth", p.logic_depth);
+  b.field("fanout", p.fanout);
+  b.field("start_pin", p.start_pin);
+  b.field("end_pin", p.end_pin);
+  b.beginArray("data_nodes");
   for (const auto& n : p.data_nodes) {
-    data.emplace_back(serializeTimingNode(n));
+    serializeTimingNode(b, n);
   }
-  o["data_nodes"] = std::move(data);
-  boost::json::array capture;
-  capture.reserve(p.capture_nodes.size());
+  b.endArray();
+  b.beginArray("capture_nodes");
   for (const auto& n : p.capture_nodes) {
-    capture.emplace_back(serializeTimingNode(n));
+    serializeTimingNode(b, n);
   }
-  o["capture_nodes"] = std::move(capture);
-  return o;
+  b.endArray();
+  b.endObject();
 }
 
-boost::json::object serializeTimingPaths(
-    const std::vector<TimingPathSummary>& paths)
+void serializeTimingPaths(JsonBuilder& b,
+                          const std::vector<TimingPathSummary>& paths)
 {
-  boost::json::object o;
-  boost::json::array arr;
-  arr.reserve(paths.size());
+  b.beginObject();
+  b.beginArray("paths");
   for (const auto& p : paths) {
-    arr.emplace_back(serializeTimingPath(p));
+    serializeTimingPath(b, p);
   }
-  o["paths"] = std::move(arr);
-  return o;
+  b.endArray();
+  b.endObject();
 }
 
-boost::json::object serializeSlackHistogram(const SlackHistogramResult& h)
+void serializeSlackHistogram(JsonBuilder& b, const SlackHistogramResult& h)
 {
-  boost::json::object o;
-  boost::json::array bins;
-  bins.reserve(h.bins.size());
+  b.beginObject();
+  b.beginArray("bins");
   for (const auto& bin : h.bins) {
-    boost::json::object b;
-    b["lower"] = bin.lower;
-    b["upper"] = bin.upper;
-    b["count"] = bin.count;
-    b["negative"] = bin.is_negative;
-    bins.emplace_back(std::move(b));
+    b.beginObject();
+    b.field("lower", bin.lower);
+    b.field("upper", bin.upper);
+    b.field("count", bin.count);
+    b.field("negative", bin.is_negative);
+    b.endObject();
   }
-  o["bins"] = std::move(bins);
-  o["unconstrained_count"] = h.unconstrained_count;
-  o["total_endpoints"] = h.total_endpoints;
-  o["time_unit"] = h.time_unit;
-  return o;
+  b.endArray();
+  b.field("unconstrained_count", h.unconstrained_count);
+  b.field("total_endpoints", h.total_endpoints);
+  b.field("time_unit", h.time_unit);
+  b.endObject();
 }
 
-boost::json::object serializeChartFilters(const ChartFilters& f)
+void serializeChartFilters(JsonBuilder& b, const ChartFilters& f)
 {
-  boost::json::object o;
-  boost::json::array groups;
-  groups.reserve(f.path_groups.size());
+  b.beginObject();
+  b.beginArray("path_groups");
   for (const auto& name : f.path_groups) {
-    groups.emplace_back(name);
+    b.value(name);
   }
-  o["path_groups"] = std::move(groups);
-  boost::json::array clocks;
-  clocks.reserve(f.clocks.size());
+  b.endArray();
+  b.beginArray("clocks");
   for (const auto& name : f.clocks) {
-    clocks.emplace_back(name);
+    b.value(name);
   }
-  o["clocks"] = std::move(clocks);
-  return o;
+  b.endArray();
+  b.endObject();
 }
 
 }  // namespace web

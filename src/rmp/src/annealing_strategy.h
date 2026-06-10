@@ -28,20 +28,26 @@ namespace rmp {
 class AnnealingStrategy final : public SlackTuningStrategy
 {
  public:
+  // eval_mode: "full"   → kFull every iteration (default, accurate)
+  //            "tiered" → kCheap all iters + kFull final re-eval of best
   explicit AnnealingStrategy(sta::Scene* corner,
                              sta::Slack slack_threshold,
                              std::mt19937::result_type seed,
                              std::optional<float> temperature,
                              unsigned iterations,
                              std::optional<unsigned> revert_after,
-                             unsigned initial_ops)
+                             unsigned initial_ops,
+                             float percentage  = 100.0f,
+                             std::string eval_mode = "full")
       : SlackTuningStrategy(corner,
                             slack_threshold,
                             seed,
                             iterations,
-                            initial_ops),
+                            initial_ops,
+                            percentage),
         temperature_(temperature),
-        revert_after_(revert_after)
+        revert_after_(revert_after),
+        eval_mode_(std::move(eval_mode))
   {
   }
 
@@ -55,8 +61,9 @@ class AnnealingStrategy final : public SlackTuningStrategy
       utl::Logger* logger) override;
 
  private:
-  std::optional<float> temperature_;
+  std::optional<float>    temperature_;
   std::optional<unsigned> revert_after_;
+  std::string             eval_mode_ = "full";
 };
 
 }  // namespace rmp

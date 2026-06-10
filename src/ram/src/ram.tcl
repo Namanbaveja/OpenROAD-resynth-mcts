@@ -4,7 +4,6 @@
 sta::define_cmd_args "generate_ram_netlist" {-mask_size bits
                                              -word_size bits
                                              -num_words words
-                                             [-column_mux_ratio ratio]
                                              [-storage_cell name]
                                              [-tristate_cell name]
                                              [-inv_cell name]
@@ -14,13 +13,8 @@ sta::define_cmd_args "generate_ram_netlist" {-mask_size bits
 
 proc generate_ram_netlist { args } {
   sta::parse_key_args "generate_ram_netlist" args \
-    keys { -mask_size -word_size -num_words -column_mux_ratio -storage_cell -tristate_cell -inv_cell
-      -read_ports -tapcell -max_tap_dist -write_behavioral_verilog } flags {}
-
-  set column_mux_ratio 1
-  if { [info exists keys(-column_mux_ratio)] } {
-    set column_mux_ratio $keys(-column_mux_ratio)
-  }
+    keys { -mask_size -word_size -num_words -storage_cell -tristate_cell -inv_cell
+      -read_ports -tapcell -max_tap_dist } flags {}
 
   if { [info exists keys(-mask_size)] } {
     set mask_size $keys(-mask_size)
@@ -79,18 +73,13 @@ proc generate_ram_netlist { args } {
         The generated layout may not pass Design Rule Checks."
   }
 
-  if { [info exists keys(-write_behavioral_verilog)] } {
-    ram::set_behavioral_verilog_filename $keys(-write_behavioral_verilog)
-  }
-
-  ram::generate_ram_netlist_cmd $mask_size $word_size $num_words $column_mux_ratio $storage_cell \
+  ram::generate_ram_netlist_cmd $mask_size $word_size $num_words $storage_cell \
     $tristate_cell $inv_cell $read_ports $tapcell $max_tap_dist
 }
 
 sta::define_cmd_args "generate_ram" {-mask_size bits
                                      -word_size bits
                                      -num_words words
-                                     [-column_mux_ratio ratio]
                                      [-read_ports count]
                                      [-storage_cell name]
                                      [-tristate_cell name]
@@ -109,8 +98,7 @@ sta::define_cmd_args "generate_ram" {-mask_size bits
 # user arguments for generate ram arguments
 proc generate_ram { args } {
   sta::parse_key_args "generate_ram" args \
-    keys { -mask_size -word_size -num_words -column_mux_ratio
-           -storage_cell -tristate_cell -inv_cell -read_ports
+    keys { -mask_size -word_size -num_words -storage_cell -tristate_cell -inv_cell -read_ports
       -power_pin -ground_pin -routing_layer -ver_layer -hor_layer -filler_cells
         -tapcell -max_tap_dist -write_behavioral_verilog } flags {}
 
@@ -148,10 +136,6 @@ proc generate_ram { args } {
 
   if { [info exists keys(-max_tap_dist)] } {
     lappend ram_netlist_args -max_tap_dist $keys(-max_tap_dist)
-  }
-
-  if { [info exists keys(-column_mux_ratio)] } {
-    lappend ram_netlist_args -column_mux_ratio $keys(-column_mux_ratio)
   }
 
   if { [info exists keys(-write_behavioral_verilog)] } {

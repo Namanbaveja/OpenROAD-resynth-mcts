@@ -15,7 +15,6 @@
 
 #include "db_sta/dbNetwork.hh"
 #include "db_sta/dbSta.hh"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/dbObject.h"
 #include "odb/dbTransform.h"
@@ -742,9 +741,9 @@ sta::Delay ClockTree::getMinimumDriverDelay(bool visibility = false) const
   return minimum;
 }
 
-odb::PtrSet<odb::dbNet> ClockTree::getNets(bool visibility = false) const
+std::set<odb::dbNet*> ClockTree::getNets(bool visibility = false) const
 {
-  odb::PtrSet<odb::dbNet> nets;
+  std::set<odb::dbNet*> nets;
 
   if (!visibility or subtree_visibility_) {
     if (net_ != nullptr) {

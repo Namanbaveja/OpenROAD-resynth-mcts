@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/dbTypes.h"
 #include "odb/geom.h"
@@ -52,7 +51,7 @@ class InitFloorplan
                      odb::dbSite* base_site,
                      const std::vector<odb::dbSite*>& additional_sites = {},
                      RowParity row_parity = RowParity::kNone,
-                     const odb::PtrSet<odb::dbSite>& flipped_sites = {},
+                     const std::set<odb::dbSite*>& flipped_sites = {},
                      int gap = std::numeric_limits<std::int32_t>::min());
 
   // The base_site determines the single-height rows.  For hybrid rows it is
@@ -62,7 +61,7 @@ class InitFloorplan
                      odb::dbSite* base_site,
                      const std::vector<odb::dbSite*>& additional_sites = {},
                      RowParity row_parity = RowParity::kNone,
-                     const odb::PtrSet<odb::dbSite>& flipped_sites = {},
+                     const std::set<odb::dbSite*>& flipped_sites = {},
                      int gap = std::numeric_limits<std::int32_t>::min());
 
   void insertTiecells(odb::dbMTerm* tie_term,
@@ -93,7 +92,7 @@ class InitFloorplan
                            const std::vector<odb::dbSite*>& additional_sites
                            = {},
                            RowParity row_parity = RowParity::kNone,
-                           const odb::PtrSet<odb::dbSite>& flipped_sites = {},
+                           const std::set<odb::dbSite*>& flipped_sites = {},
                            int gap = std::numeric_limits<std::int32_t>::min());
 
   // The base_site determines the single-height rows.  For hybrid rows it is
@@ -102,7 +101,7 @@ class InitFloorplan
                 odb::dbSite* base_site,
                 const std::vector<odb::dbSite*>& additional_sites = {},
                 RowParity row_parity = RowParity::kNone,
-                const odb::PtrSet<odb::dbSite>& flipped_sites = {},
+                const std::set<odb::dbSite*>& flipped_sites = {},
                 int gap = std::numeric_limits<std::int32_t>::min());
 
   // Create rows for a polygon core area using true polygon-aware generation
@@ -110,7 +109,7 @@ class InitFloorplan
                        odb::dbSite* base_site,
                        const std::vector<odb::dbSite*>& additional_sites = {},
                        RowParity row_parity = RowParity::kNone,
-                       const odb::PtrSet<odb::dbSite>& flipped_sites = {},
+                       const std::set<odb::dbSite*>& flipped_sites = {},
                        int gap = std::numeric_limits<std::int32_t>::min());
 
   void makeTracks();
@@ -142,7 +141,7 @@ class InitFloorplan
                        const SitesByName& sites_by_name,
                        const odb::Rect& core,
                        RowParity row_parity,
-                       const odb::PtrSet<odb::dbSite>& flipped_sites);
+                       const std::set<odb::dbSite*>& flipped_sites);
   void makeHybridRows(odb::dbSite* base_hybrid_site,
                       const SitesByName& sites_by_name,
                       const odb::Rect& core);
@@ -166,7 +165,7 @@ class InitFloorplan
                                odb::dbSite* base_site,
                                const SitesByName& sites_by_name,
                                RowParity row_parity,
-                               const odb::PtrSet<odb::dbSite>& flipped_sites,
+                               const std::set<odb::dbSite*>& flipped_sites,
                                int gap);
 
   std::vector<odb::Rect> intersectRowWithPolygon(const odb::Rect& row,
@@ -176,7 +175,7 @@ class InitFloorplan
                               const odb::Polygon& core_polygon,
                               const odb::Rect& core_bbox,
                               RowParity row_parity,
-                              const odb::PtrSet<odb::dbSite>& flipped_sites);
+                              const std::set<odb::dbSite*>& flipped_sites);
 
   odb::dbBlock* block_{nullptr};
   utl::Logger* logger_{nullptr};

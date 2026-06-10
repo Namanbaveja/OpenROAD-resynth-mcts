@@ -1261,7 +1261,7 @@ void NesterovPlace::createCbkGCell(odb::dbInst* db_inst)
     if (!found_nb) {
       log_->warn(
           GPL,
-          85,
+          8,
           "Unable to find NesterovBase for group ({}) to insert instance ({}).",
           group->getName(),
           db_inst->getName());

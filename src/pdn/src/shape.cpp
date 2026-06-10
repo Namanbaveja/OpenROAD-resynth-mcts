@@ -800,7 +800,7 @@ void FollowPinShape::updateTermConnections()
   // remove rows that no longer overlap with shape
 
   const odb::Rect& rect = getRect();
-  odb::PtrSet<odb::dbRow> remove_rows;
+  std::set<odb::dbRow*> remove_rows;
   for (auto* row : rows_) {
     odb::Rect row_rect = row->getBBox();
     if (!rect.intersects(row_rect)) {

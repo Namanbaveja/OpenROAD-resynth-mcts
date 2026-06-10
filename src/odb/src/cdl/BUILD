@@ -12,9 +12,6 @@ cc_library(
     name = "cdl",
     srcs = glob(["*.cpp"]),
     hdrs = ["//src/odb:include/odb/cdl.h"],
-    includes = [
-        "../../include",
-    ],
     deps = [
         "//src/odb/src/db",
         "//src/utl",

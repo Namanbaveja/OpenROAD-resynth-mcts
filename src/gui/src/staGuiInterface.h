@@ -14,7 +14,6 @@
 #include "db_sta/dbNetwork.hh"
 #include "db_sta/dbSta.hh"
 #include "gui/gui.h"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/dbBlockCallBackObj.h"
 #include "odb/dbObject.h"
@@ -280,7 +279,7 @@ class ClockTree
   sta::Delay getMinimumDriverDelay(bool visibility) const;
   int getSinkCount() const;
 
-  odb::PtrSet<odb::dbNet> getNets(bool visibility) const;
+  std::set<odb::dbNet*> getNets(bool visibility) const;
 
   void addPath(sta::PathExpanded& path, const sta::StaState* sta);
 

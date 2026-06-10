@@ -8,6 +8,9 @@
 #include "odb/db.h"
 #include "sta/Liberty.hh"
 
+#include "../src/iterative_restructure.h"
+
+
 namespace ord {
 // Defined in OpenRoad.i
 rmp::Restructure *
@@ -30,6 +33,31 @@ using sta::Scene;
 %include "tcl/StaTclTypes.i"
 
 %inline %{
+
+
+void restructure_iterative_cmd(char* liberty_file_name,
+                               char* target,
+                               float slack_threshold,
+                               int   depth_threshold,
+                               char* workdir_name,
+                               char* abc_logfile,
+                               int   iters,
+                               int   seed,
+                               float temperature,
+                               int   initial_ops,
+                               int   revert_after)
+{
+  getRestructure()->setMode(target);
+  rmp::IterativeRestructure it(getRestructure());
+  it.setIters(iters);
+  it.setSeed(seed);
+  it.setTemperature(temperature);
+  it.setInitialOps(initial_ops);
+  it.setRevertAfter(revert_after);
+  it.run(liberty_file_name, slack_threshold, depth_threshold,
+         workdir_name, abc_logfile);
+}
+
 
 
 void set_tielo_port_cmd(LibertyPort* tieLoport)
@@ -76,6 +104,12 @@ void
 set_annealing_initial_ops(int set_annealing_initial_ops)
 {
   getRestructure()->setAnnealingInitialOps(set_annealing_initial_ops);
+}
+
+void
+set_annealing_percentage(float annealing_percentage)
+{
+  getRestructure()->setAnnealingPercentage(annealing_percentage);
 }
 
 void
@@ -131,12 +165,86 @@ void resynth_cmd(Scene* corner) {
 }
 
 void resynth_annealing_cmd(Scene* corner) {
+  getRestructure()->resynthOriginalAnnealing(corner);
+}
+
+void set_original_annealing_percentage(float p) {
+  getRestructure()->setOriginalAnnealingPercentage(p);
+}
+
+void resynth_sa_cmd(Scene* corner) {
   getRestructure()->resynthAnnealing(corner);
 }
 
 void resynth_genetic_cmd(Scene* corner) {
   getRestructure()->resynthGenetic(corner);
 }
+
+void resynth_mcts_cmd(Scene* corner) {
+  getRestructure()->resynthMcts(corner);
+}
+
+void
+set_mcts_seed(int mcts_seed)
+{
+  getRestructure()->setMctsSeed(mcts_seed);
+}
+
+void
+set_mcts_ucb_constant(float mcts_ucb_constant)
+{
+  getRestructure()->setMctsUcbConstant(mcts_ucb_constant);
+}
+
+void
+set_mcts_iters(int mcts_iters)
+{
+  getRestructure()->setMctsIters(mcts_iters);
+}
+
+void
+set_mcts_max_depth(int mcts_max_depth)
+{
+  getRestructure()->setMctsMaxDepth(mcts_max_depth);
+}
+
+void
+set_mcts_initial_ops(int mcts_initial_ops)
+{
+  getRestructure()->setMctsInitialOps(mcts_initial_ops);
+}
+
+void
+set_mcts_percentage(float mcts_percentage)
+{
+  getRestructure()->setMctsPercentage(mcts_percentage);
+}
+
+void
+set_mcts_wns_pct(float wns_pct)
+{
+  getRestructure()->setMctsWnsPct(wns_pct);
+}
+
+void
+set_mcts_eval_mode(const char* mode)
+{
+  getRestructure()->setMctsEvalMode(mode);
+}
+
+void
+set_sa_eval_mode(const char* mode)
+{
+  getRestructure()->setSaEvalMode(mode);
+}
+
+void
+set_annealing_final_topk(unsigned k)
+{
+  getRestructure()->setAnnealingFinalTopK(k);
+}
+
+
 
 void
 restructure_cmd(char* liberty_file_name, char* target, float slack_threshold,

@@ -2569,10 +2569,9 @@ void extMeasure::measureRC(CoupleOptions& options)
               " ---------------------------------------------------------------"
               "------------------\n");
     }
-
-    double base_resistances[10];
+    double deltaRes[10];
     for (uint32_t jj = 0; jj < _metRCTable.getCnt(); jj++) {
-      base_resistances[jj] = 0.0;
+      deltaRes[jj] = 0.0;
     }
 
     SEQ* s = addSeq(_ll, _ur);
@@ -2584,18 +2583,15 @@ void extMeasure::measureRC(CoupleOptions& options)
       len_covered += len_down_not_coupled;
     }
     if (len_covered > 0) {
-      calcRes0(base_resistances, _met, len_covered);
+      calcRes0(deltaRes, _met, len_covered);
     }
 
     for (uint32_t jj = 0; jj < _metRCTable.getCnt(); jj++) {
-      const double total_resistance = _rc[jj]->res_;
-
-      if (total_resistance > 0) {
-        const double neighboring_adjustment
-            = total_resistance - base_resistances[jj];
-
-        if (neighboring_adjustment != 0.0) {
-          _extMain->updateRes(rseg1, neighboring_adjustment, jj);
+      double totR1 = _rc[jj]->res_;
+      if (totR1 > 0) {
+        totR1 -= deltaRes[jj];
+        if (totR1 != 0.0) {
+          _extMain->updateRes(rseg1, totR1, jj);
         }
       }
     }

@@ -19,7 +19,6 @@
 #include <variant>
 #include <vector>
 
-#include "odb/PtrSetMap.h"
 #include "odb/dbBlockSet.h"
 #include "odb/dbCCSegSet.h"
 #include "odb/dbDatabaseObserver.h"
@@ -1373,7 +1372,7 @@ class dbBlock : public dbObject
 
   void clearUserInstFlags();
 
-  odb::PtrMap<dbTechLayer, dbTechVia*> getDefaultVias();
+  std::map<dbTechLayer*, dbTechVia*> getDefaultVias();
 
   ///
   /// Destroy all the routing wires from signal and clock nets in this block.
@@ -2370,7 +2369,7 @@ class dbNet : public dbObject
   ///
   void getCouplingNets(uint32_t corner,
                        double ccThreshold,
-                       odb::PtrSet<dbNet>& cnets);
+                       std::set<dbNet*>& cnets);
 
   ///
   /// delete the capacitor-coupled segments.
@@ -2546,7 +2545,7 @@ class dbNet : public dbObject
   /// two objects in different parts of the hierarchy, each connected
   /// by different dbModNets in different parts of the hierarchy).
   ///
-  bool findRelatedModNets(odb::PtrSet<dbModNet>& modnet_set) const;
+  bool findRelatedModNets(std::set<dbModNet*>& modnet_set) const;
 
   ///
   /// Find the modnet in the highest hierarchy related to this net.
@@ -2639,7 +2638,7 @@ class dbNet : public dbObject
   ///   contain an irrelevant load.
   ///
   dbInst* insertBufferBeforeLoads(
-      const odb::PtrSet<dbObject>& load_pins,
+      const std::set<dbObject*>& load_pins,
       const dbMaster* buffer_master,
       const Point* loc = nullptr,
       const char* new_buf_base_name = kDefaultBufBaseName,
@@ -3480,7 +3479,7 @@ class dbITerm : public dbObject
   ///
   /// Returns all access points for each pin.
   ///
-  odb::PtrMap<dbMPin, std::vector<dbAccessPoint*>> getAccessPoints() const;
+  std::map<dbMPin*, std::vector<dbAccessPoint*>> getAccessPoints() const;
 
   ///
   /// Destroys all access points of each pin.
@@ -8345,7 +8344,7 @@ class dbMarker : public dbObject
   dbTechLayer* getTechLayer() const;
   Rect getBBox() const;
 
-  odb::PtrSet<dbObject> getSources() const;
+  std::set<dbObject*> getSources() const;
 
   void addShape(const Point& pt);
   void addShape(const Line& line);
@@ -8391,7 +8390,7 @@ class dbMarkerCategory : public dbObject
   dbObject* getParent() const;
   std::string getSource() const;
 
-  odb::PtrSet<dbMarker> getAllMarkers() const;
+  std::set<dbMarker*> getAllMarkers() const;
 
   bool rename(const char* name);
 
@@ -8402,11 +8401,11 @@ class dbMarkerCategory : public dbObject
   void writeTR(const std::string& path) const;
   void writeTR(std::ofstream& report) const;
 
-  static odb::PtrSet<dbMarkerCategory> fromJSON(dbChip* chip,
-                                                const std::string& path);
-  static odb::PtrSet<dbMarkerCategory> fromJSON(dbChip* chip,
-                                                const char* source,
-                                                std::ifstream& report);
+  static std::set<dbMarkerCategory*> fromJSON(dbChip* chip,
+                                              const std::string& path);
+  static std::set<dbMarkerCategory*> fromJSON(dbChip* chip,
+                                              const char* source,
+                                              std::ifstream& report);
   static dbMarkerCategory* fromTR(dbChip* chip,
                                   const char* name,
                                   const std::string& path);

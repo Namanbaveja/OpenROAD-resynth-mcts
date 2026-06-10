@@ -13,7 +13,6 @@
 
 #include "db_sta/dbNetwork.hh"
 #include "db_sta/dbSta.hh"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "ord/Design.h"
 #include "ord/OpenRoad.hh"
@@ -283,7 +282,7 @@ std::vector<odb::dbMTerm*> Timing::getTimingFanoutFrom(odb::dbMTerm* input)
   sta::Port* port = network->dbToSta(input);
   sta::LibertyPort* lib_port = network->libertyPort(port);
 
-  odb::PtrSet<odb::dbMTerm> outputs;
+  std::set<odb::dbMTerm*> outputs;
   for (auto arc_set : lib_cell->timingArcSets(lib_port, /* to */ nullptr)) {
     const sta::TimingRole* role = arc_set->role();
     if (role->isTimingCheck() || role->isAsyncTimingCheck()

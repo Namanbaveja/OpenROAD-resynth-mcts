@@ -29,7 +29,6 @@
 #include "dbModNet.h"
 #include "dbNet.h"
 #include "dbTable.h"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/dbBlockCallBackObj.h"
 #include "odb/dbObject.h"
@@ -815,13 +814,12 @@ void dbITerm::setAccessPoint(dbMPin* pin, dbAccessPoint* ap)
   }
 }
 
-odb::PtrMap<dbMPin, std::vector<dbAccessPoint*>> dbITerm::getAccessPoints()
-    const
+std::map<dbMPin*, std::vector<dbAccessPoint*>> dbITerm::getAccessPoints() const
 {
   _dbBlock* block = (_dbBlock*) getBlock();
   auto mterm = getMTerm();
   uint32_t pin_access_idx = getInst()->getPinAccessIdx();
-  odb::PtrMap<dbMPin, std::vector<dbAccessPoint*>> aps;
+  std::map<dbMPin*, std::vector<dbAccessPoint*>> aps;
   for (auto mpin : mterm->getMPins()) {
     _dbMPin* pin = (_dbMPin*) mpin;
     if (pin->aps_.size() > pin_access_idx) {

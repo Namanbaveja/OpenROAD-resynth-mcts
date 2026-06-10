@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "boost/geometry/geometry.hpp"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/dbTypes.h"
 #include "odb/geom.h"
@@ -108,9 +107,9 @@ class GridSwitchedPower
   struct InstanceInfo
   {
     std::set<int> sites;
-    odb::PtrSet<odb::dbRow> rows;
+    std::set<odb::dbRow*> rows;
   };
-  odb::PtrMap<odb::dbInst, InstanceInfo> insts_;
+  std::map<odb::dbInst*, InstanceInfo> insts_;
 
   Straps* getLowestStrap() const;
 
@@ -143,8 +142,8 @@ class GridSwitchedPower
   using RowTree
       = bgi::rtree<odb::dbRow*, bgi::quadratic<16>, RowIndexableGetter>;
   RowTree buildRowTree() const;
-  odb::PtrSet<odb::dbRow> getInstanceRows(odb::dbInst* inst,
-                                          const RowTree& row_search) const;
+  std::set<odb::dbRow*> getInstanceRows(odb::dbInst* inst,
+                                        const RowTree& row_search) const;
 
   bool checkInstanceOverlap(odb::dbInst* inst0, odb::dbInst* inst1) const;
   void updateControlNetwork();

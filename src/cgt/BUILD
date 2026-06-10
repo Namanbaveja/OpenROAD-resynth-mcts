@@ -39,7 +39,7 @@ cc_library(
         "//:ord",
         "//src/cut",
         "//src/dbSta",
-        "//src/odb/src/db",
+        "//src/odb",
         "//src/sta:opensta_lib",
         "//src/utl",
         "@abc",

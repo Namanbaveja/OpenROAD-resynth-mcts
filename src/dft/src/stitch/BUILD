@@ -24,7 +24,7 @@ cc_library(
         "//src/dft/src/cells",
         "//src/dft/src/config",
         "//src/dft/src/utils",
-        "//src/odb/src/db",
+        "//src/odb",
         "//src/utl",
         "@boost.algorithm",
     ],

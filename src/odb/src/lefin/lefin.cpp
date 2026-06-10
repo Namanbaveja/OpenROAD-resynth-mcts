@@ -23,8 +23,6 @@
 #include "lefLayerPropParser.h"
 #include "lefMacroPropParser.h"
 #include "lefiDebug.hpp"
-#include "lefiLayer.hpp"
-#include "lefiMisc.hpp"
 #include "lefiUtil.hpp"
 #include "lefrReader.hpp"
 #include "odb/db.h"

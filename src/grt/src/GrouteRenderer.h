@@ -10,7 +10,6 @@
 #include "grt/GRoute.h"
 #include "grt/GlobalRouter.h"
 #include "gui/gui.h"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 
 namespace grt {
@@ -32,7 +31,7 @@ class GrouteRenderer : public gui::Renderer, public AbstractGrouteRenderer
                    gui::Painter& painter);
   GlobalRouter* groute_;
   odb::dbTech* tech_;
-  odb::PtrSet<odb::dbNet> nets_;
+  std::set<odb::dbNet*> nets_;
   std::unordered_map<odb::dbNet*, bool> show_segments_;
   std::unordered_map<odb::dbNet*, bool> show_pin_locations_;
 };

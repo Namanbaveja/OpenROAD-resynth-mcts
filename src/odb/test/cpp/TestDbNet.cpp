@@ -3,7 +3,6 @@
 #include <string>
 
 #include "gtest/gtest.h"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "sta/Liberty.hh"
 #include "tst/fixture.h"
@@ -16,7 +15,7 @@ class TestDbNet : public tst::Fixture
   struct ComplexHierarchy
   {
     dbNet* the_net = nullptr;
-    odb::PtrSet<odb::dbModNet> expected_modnets;
+    std::set<dbModNet*> expected_modnets;
   };
 
   struct SingleModuleCollision
@@ -170,7 +169,7 @@ TEST_F(TestDbNet, FindRelatedModNetsComplex)
   const auto hierarchy = SetUpComplexHierarchy("the_net", "top_mod_net");
 
   // ACTION
-  odb::PtrSet<odb::dbModNet> related_modnets;
+  std::set<dbModNet*> related_modnets;
   hierarchy.the_net->findRelatedModNets(related_modnets);
 
   // ASSERT
@@ -191,7 +190,7 @@ TEST_F(TestDbNet, FindRelatedModNetsNone)
   inst->findITerm("A1")->connect(net);
 
   // ACTION
-  odb::PtrSet<odb::dbModNet> related_modnets;
+  std::set<dbModNet*> related_modnets;
   net->findRelatedModNets(related_modnets);
 
   // ASSERT
@@ -206,7 +205,7 @@ TEST_F(TestDbNet, FindRelatedModNetsClearsSet)
   auto* top_mod = block_->getTopModule();
   auto* dummy_mod_net = dbModNet::create(top_mod, "dummy");
 
-  odb::PtrSet<odb::dbModNet> related_modnets;
+  std::set<dbModNet*> related_modnets;
   related_modnets.insert(dummy_mod_net);
 
   // ACTION

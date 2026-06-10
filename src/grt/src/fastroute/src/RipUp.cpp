@@ -302,12 +302,9 @@ bool FastRouteCore::newRipup3DType3(const int netID, const int edgeID)
       }
     }
     node.conCNT--;
-    // bl can stay at the BIG_INT sentinel for a Steiner node whose only
-    // connection is the edge being removed; clamp to the constructor
-    // default to avoid truncating into int16_t botL.
-    node.botL = (bl == BIG_INT) ? -1 : static_cast<int16_t>(bl);
+    node.botL = bl;
     node.lID = bid;
-    node.topL = static_cast<int16_t>(hl);
+    node.topL = hl;
     node.hID = hid;
   };
 

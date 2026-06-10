@@ -36,7 +36,6 @@ void FlexGridGraph::printExpansion(const FlexWavefrontGrid& currGrid,
   auto gridZ = currGrid.z();
   dir = (frDirEnum) (OPPOSITEDIR - (int) dir);
   bool gridCost = hasGridCost(gridX, gridY, gridZ, dir);
-  bool apCost = hasApCost(gridX, gridY, gridZ, dir);
   bool drcCost = hasRouteShapeCostAdj(gridX, gridY, gridZ, dir, false);
   bool markerCost = hasMarkerCostAdj(gridX, gridY, gridZ, dir);
   bool shapeCost = hasFixedShapeCostAdj(gridX, gridY, gridZ, dir, false);
@@ -58,11 +57,9 @@ void FlexGridGraph::printExpansion(const FlexWavefrontGrid& currGrid,
       gridX,
       gridY);
   dump_file_ << fmt::format(
-      "gridCost {} apCost {} drcCost {} markerCost {} shapeCost {} blockCost "
-      "{} "
+      "gridCost {} drcCost {} markerCost {} shapeCost {} blockCost {} "
       "guideCost {} edgeLength {} ",
       gridCost,
-      apCost,
       drcCost,
       markerCost,
       shapeCost,
@@ -545,7 +542,6 @@ frCost FlexGridGraph::getCosts(frMIdx gridX,
                                bool route_with_jumpers) const
 {
   bool gridCost = hasGridCost(gridX, gridY, gridZ, dir);
-  bool apCost = hasApCost(gridX, gridY, gridZ, dir);
   bool drcCost = hasRouteShapeCostAdj(gridX, gridY, gridZ, dir, considerNDR);
   bool markerCost = hasMarkerCostAdj(gridX, gridY, gridZ, dir);
   bool shapeCost = hasFixedShapeCostAdj(gridX, gridY, gridZ, dir, considerNDR);
@@ -558,7 +554,7 @@ frCost FlexGridGraph::getCosts(frMIdx gridX,
 
   // temporarily disable guideCost
   return getEdgeLength(gridX, gridY, gridZ, dir)
-         + (gridCost || apCost ? router_cfg_->GRIDCOST * edgeLength : 0)
+         + (gridCost ? router_cfg_->GRIDCOST * edgeLength : 0)
          + (drcCost ? ggDRCCost_ * edgeLength : 0)
          + (markerCost ? ggMarkerCost_ * edgeLength : 0)
          + (shapeCost ? ggFixedShapeCost_ * edgeLength : 0)

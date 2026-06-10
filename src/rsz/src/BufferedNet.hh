@@ -25,6 +25,7 @@ class EstimateParasitics;
 namespace rsz {
 
 class Resizer;
+class RepairSetup;
 
 class BufferedNet;
 using BufferedNetPtr = std::shared_ptr<BufferedNet>;
@@ -247,11 +248,8 @@ class BufferedNet
 
   Metrics metrics() const
   {
-    return Metrics{.max_load_wl = maxLoadWireLength(),
-                   .slack = slack(),
-                   .cap = cap(),
-                   .max_load_slew = maxLoadSlew(),
-                   .fanout = fanout()};
+    return Metrics{
+        maxLoadWireLength(), slack(), cap(), maxLoadSlew(), fanout()};
   }
 
   bool fitsEnvelope(Metrics target);

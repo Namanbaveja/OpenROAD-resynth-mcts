@@ -13,9 +13,7 @@
 #include <vector>
 
 #include "boost/asio/ip/tcp.hpp"
-#include "boost/asio/steady_timer.hpp"
 #include "odb/db.h"
-#include "spdlog/common.h"
 #include "tcl.h"
 #include "utl/Logger.h"
 
@@ -92,11 +90,6 @@ class WebServer
   // (e.g. an ASIO worker thread executing a Tcl command).
   void requestStop();
 
-  // True if `exit` was invoked from a Tcl command running on a worker
-  // thread.  Main.cc / web.i checks this after waitForStop() returns
-  // and exits the process cleanly from the main thread.
-  bool exitRequested() const { return exit_requested_; }
-
   void saveReport(const std::string& filename,
                   int max_setup_paths,
                   int max_hold_paths);
@@ -110,16 +103,10 @@ class WebServer
                  double dbu_per_pixel,
                  const std::string& vis_json);
 
-  // Tears down the I/O threads and cleans up hooks.  Safe to call multiple
-  // times and from any thread; after it returns, isRunning() is false and
-  // serve() may be called again to restart the server.
-  void stop();
-
  private:
-  // Stops ioc_, joins every worker thread except the current one, and
-  // clears threads_. Detaches the current thread if it happens to be a
-  // worker (would otherwise raise EDEADLK on self-join).
-  void stopAndJoinIoThreads();
+  // Tears down the I/O threads and cleans up hooks.  Called by the
+  // destructor; safe to call multiple times.
+  void stop();
 
   odb::dbDatabase* db_ = nullptr;
   sta::dbSta* sta_ = nullptr;
@@ -128,42 +115,22 @@ class WebServer
   int num_threads_ = 0;
   std::shared_ptr<TileGenerator> generator_;
   std::unique_ptr<WebViewerHook> viewer_hook_;
+  std::shared_ptr<spdlog::sinks::sink> log_sink_;
 
   // Background I/O context and worker threads (non-null while running).
   std::unique_ptr<boost::asio::io_context> ioc_;
   std::vector<std::thread> threads_;
 
-  // Periodic timer that drains WebLogSink so log output produced by
-  // long-running Tcl commands streams to clients without waiting for a
-  // debug pause/redraw or for the command to return.  Reschedules
-  // itself; cancelled in stop() before ioc_ is shut down.
-  std::unique_ptr<boost::asio::steady_timer> log_drain_timer_;
-  void scheduleLogDrain();
-
-  // Closes the Listener's acceptor before the io_context is destroyed,
-  // avoiding a crash where the acceptor references a half-destroyed
-  // io_context.
+  // Type-erased callback that closes the Listener's acceptor before the
+  // io_context is destroyed — prevents a crash where the acceptor's
+  // destructor references the io_context that's mid-destruction.
   std::function<void()> shutdown_listener_;
 
-  // Held so stop() can remove it from the Logger before viewer_hook_ is
-  // destroyed — the sink stores a raw pointer into the hook.
-  spdlog::sink_ptr log_sink_;
   // Blocking support: waitForStop() sleeps on stop_cv_ until
   // requestStop() sets stop_requested_.
   std::mutex stop_mutex_;
   std::condition_variable stop_cv_;
   bool stop_requested_ = false;
-
-  // Set by tclExitHandler when `exit` is run on a worker thread.
-  bool exit_requested_ = false;
-
-  // Tcl command override: replaces `exit` while the server is running
-  // so a worker-thread `exit` doesn't run Tcl_Exit (which would self-join
-  // the worker thread inside ~WebServer).
-  static int tclExitHandler(ClientData clientData,
-                            Tcl_Interp* interp,
-                            int argc,
-                            const char* argv[]);
 };
 
 }  // namespace web

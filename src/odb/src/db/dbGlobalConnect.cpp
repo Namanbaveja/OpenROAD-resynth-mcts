@@ -22,7 +22,6 @@
 #include "dbLib.h"
 #include "dbMTerm.h"
 #include "dbMaster.h"
-#include "odb/PtrSetMap.h"
 #include "odb/dbSet.h"
 #include "utl/Logger.h"
 // User Code End Includes
@@ -259,16 +258,16 @@ void _dbGlobalConnect::testRegex(utl::Logger* logger,
   }
 }
 
-odb::PtrMap<dbMaster, odb::PtrSet<dbMTerm>> _dbGlobalConnect::getMTermMapping()
+std::map<dbMaster*, std::set<dbMTerm*>> _dbGlobalConnect::getMTermMapping()
 {
   const std::regex pin_regex = std::regex(pin_pattern_);
 
-  odb::PtrMap<dbMaster, odb::PtrSet<dbMTerm>> mapping;
+  std::map<dbMaster*, std::set<dbMTerm*>> mapping;
 
   dbDatabase* db = (dbDatabase*) getImpl()->getDatabase();
   for (dbLib* lib : db->getLibs()) {
     for (dbMaster* master : lib->getMasters()) {
-      odb::PtrSet<dbMTerm> mterms = getMTermMapping(master, pin_regex);
+      std::set<dbMTerm*> mterms = getMTermMapping(master, pin_regex);
 
       if (!mterms.empty()) {
         mapping[master] = mterms;
@@ -279,11 +278,11 @@ odb::PtrMap<dbMaster, odb::PtrSet<dbMTerm>> _dbGlobalConnect::getMTermMapping()
   return mapping;
 }
 
-odb::PtrSet<dbMTerm> _dbGlobalConnect::getMTermMapping(
+std::set<dbMTerm*> _dbGlobalConnect::getMTermMapping(
     dbMaster* master,
     const std::regex& pin_regex) const
 {
-  odb::PtrSet<dbMTerm> mterms;
+  std::set<dbMTerm*> mterms;
   for (dbMTerm* mterm : master->getMTerms()) {
     if (std::regex_match(mterm->getConstName(), pin_regex)) {
       mterms.insert(mterm);
@@ -293,7 +292,7 @@ odb::PtrSet<dbMTerm> _dbGlobalConnect::getMTermMapping(
   return mterms;
 }
 
-std::pair<odb::PtrSet<dbITerm>, odb::PtrSet<dbITerm>> _dbGlobalConnect::connect(
+std::pair<std::set<dbITerm*>, std::set<dbITerm*>> _dbGlobalConnect::connect(
     const std::vector<dbInst*>& insts,
     bool force)
 {
@@ -301,8 +300,8 @@ std::pair<odb::PtrSet<dbITerm>, odb::PtrSet<dbITerm>> _dbGlobalConnect::connect(
   dbBlock* block = (dbBlock*) getImpl()->getOwner();
   dbNet* net = odb::dbNet::getNet(block, net_);
 
-  odb::PtrSet<dbITerm> iterms;
-  odb::PtrSet<dbITerm> iterms_skipped;
+  std::set<dbITerm*> iterms;
+  std::set<dbITerm*> iterms_skipped;
 
   if (net->isDoNotTouch()) {
     logger->warn(

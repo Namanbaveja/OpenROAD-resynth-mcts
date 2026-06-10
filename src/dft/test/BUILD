@@ -80,8 +80,7 @@ cc_test(
     srcs = ["cpp/TestScanArchitect.cpp"],
     features = ["-layering_check"],  # TODO: includes private headers
     deps = [
-        "//src/dft/src/architect",
-        "//src/dft/src/config",
+        "//src/dft",
         "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
@@ -92,8 +91,7 @@ cc_test(
     srcs = ["cpp/TestScanArchitect.cpp"],
     features = ["-layering_check"],  # TODO: includes private headers
     deps = [
-        "//src/dft/src/architect",
-        "//src/dft/src/config",
+        "//src/dft",
         "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
@@ -108,12 +106,9 @@ cc_test(
     ],
     features = ["-layering_check"],  # TODO: includes private headers
     deps = [
-        "//src/dft/src/architect",
-        "//src/dft/src/cells",
-        "//src/dft/src/clock_domain",
-        "//src/dft/src/config",
+        "//src/dft",
         "//src/dft/src/utils",
-        "//src/odb/src/db",
+        "//src/odb",
         "//src/utl",
         "@googletest//:gtest",
         "@googletest//:gtest_main",
@@ -129,12 +124,9 @@ cc_test(
     ],
     features = ["-layering_check"],  # TODO: includes private headers
     deps = [
-        "//src/dft/src/architect",
-        "//src/dft/src/cells",
-        "//src/dft/src/clock_domain",
-        "//src/dft/src/config",
+        "//src/dft",
         "//src/dft/src/utils",
-        "//src/odb/src/db",
+        "//src/odb",
         "//src/utl",
         "@googletest//:gtest",
         "@googletest//:gtest_main",

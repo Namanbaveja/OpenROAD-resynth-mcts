@@ -57,7 +57,7 @@ describe('TimingWidget._selectPathRow', () => {
         const highlight = app.requests.find(r => r.type === 'timing_highlight');
         assert.ok(highlight, 'timing_highlight was requested');
         assert.equal(highlight.path_index, 1);
-        assert.equal(highlight.is_setup, true);
+        assert.equal(highlight.is_setup, 1);
     });
 
     it('sends timing_highlight with _originalIndex when paths were filtered', () => {
@@ -93,7 +93,7 @@ describe('TimingWidget._selectPathRow', () => {
 
         const highlight = app.requests.find(r => r.type === 'timing_highlight');
         assert.equal(highlight.path_index, 3);
-        assert.equal(highlight.is_setup, false);
+        assert.equal(highlight.is_setup, 0);
     });
 
     it('ignores out-of-range indices without sending a request', () => {

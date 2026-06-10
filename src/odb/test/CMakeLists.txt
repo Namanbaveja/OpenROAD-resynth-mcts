@@ -44,7 +44,6 @@ or_integration_tests(
     read_3dbx
     read_db
     read_def
-    read_def_virtual
     read_def58
     read_lef
     read_zipped
@@ -72,7 +71,6 @@ or_integration_tests(
     write_macro_placement
   PASSFAIL_TESTS
     cpp_tests
-    read_def_virtual_invalid
     test_block
     test_bterm
     test_destroy

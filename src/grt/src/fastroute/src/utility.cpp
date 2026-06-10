@@ -620,47 +620,39 @@ void FastRouteCore::resetWorstMetrics()
   worst_fanout_ = 0;
 }
 
-float FastRouteCore::getNetResistance(odb::dbNet* db_net)
+// Calculate entire net resistance considering wire and via resistance
+// If assume_layer is true, it will assume the net is routed on the min layer
+float FastRouteCore::getNetResistance(FrNet* net, bool assume_layer)
 {
-  return getNetResistanceOnLayer(db_net, -1);
-}
+  float total_resistance = 0;
+  int netID = db_net_id_map_[net->getDbNet()];
+  const auto& treeedges = sttrees_[netID].edges;
 
-// Calculate net resistance using the existing Steiner tree topology.
-// layer >= 0: all wire segments are costed on that layer (used to estimate
-//             what resistance would be if the net were rerouted on a higher
-//             layer, e.g. the minimum clock layer).
-// layer == -1: each wire segment uses its actual routed layer.
-// Via resistance always uses the actual layer transitions from the route.
-float FastRouteCore::getNetResistanceOnLayer(odb::dbNet* db_net, int layer)
-{
-  int net_id;
-  bool exists;
-  getNetId(db_net, net_id, exists);
-  if (!exists) {
-    return 0.0f;
-  }
-
-  FrNet* net = nets_[net_id];
-  float total_resistance = 0.0f;
-  for (const auto& edge : sttrees_[net_id].edges) {
+  for (const auto& edge : treeedges) {
     if (edge.len == 0 && edge.route.routelen == 0) {
       continue;
     }
+
     const std::vector<GPoint3D>& grids = edge.route.grids;
-    const int route_len = edge.route.routelen;
-    for (int i = 0; i < route_len; i++) {
+    int routeLen = edge.route.routelen;
+
+    for (int i = 0; i < routeLen; i++) {
       if (grids[i].layer == grids[i + 1].layer) {
-        const int seg_len = std::abs(grids[i].x - grids[i + 1].x)
-                            + std::abs(grids[i].y - grids[i + 1].y);
-        const int wire_layer = (layer >= 0) ? layer : grids[i].layer;
-        total_resistance
-            += getWireResistance(wire_layer, seg_len * tile_size_, net);
+        int length = std::abs(grids[i].x - grids[i + 1].x)
+                     + std::abs(grids[i].y - grids[i + 1].y);
+        total_resistance += getWireResistance(
+            assume_layer ? net->getMinLayer() : grids[i].layer,
+            length * tile_size_,
+            net);
       } else {
-        total_resistance
-            += getViaResistance(grids[i].layer, grids[i + 1].layer);
+        if (!assume_layer) {
+          total_resistance
+              += getViaResistance(grids[i].layer, grids[i + 1].layer);
+        }
       }
     }
   }
+
   return total_resistance;
 }
 
@@ -712,8 +704,8 @@ void FastRouteCore::updateSlacks(float percentage)
       continue;
     }
 
-    const float net_resistance = getNetResistanceOnLayer(
-        net->getDbNet(), is_3d_step_ ? -1 : net->getMinLayer());
+    const float net_resistance
+        = is_3d_step_ ? getNetResistance(net) : getNetResistance(net, true);
     net->setResistance(net_resistance);
 
     updateWorstMetrics(net);
@@ -2763,7 +2755,7 @@ void FastRouteCore::saveCongestion(const int iter)
 
         const int capacity = tile.capacity;
         const int usage = tile.usage;
-        marker->setComment(fmt::format("capacity:{} usage:{} congestion:{}",
+        marker->setComment(fmt::format("capacity:{} usage:{} overflow:{}",
                                        capacity,
                                        usage,
                                        usage - capacity));
@@ -2787,7 +2779,7 @@ void FastRouteCore::saveCongestion(const int iter)
 
         const int capacity = tile.capacity;
         const int usage = tile.usage;
-        marker->setComment(fmt::format("capacity:{} usage:{} congestion:{}",
+        marker->setComment(fmt::format("capacity:{} usage:{} overflow:{}",
                                        capacity,
                                        usage,
                                        usage - capacity));
@@ -2798,18 +2790,19 @@ void FastRouteCore::saveCongestion(const int iter)
     }
   }
 
-  // The final-report file-write (iter == -1) is handled in
-  // GlobalRouter::saveCongestion so both routing engines share the
-  // same code path. Per-iteration reports stay here because only
-  // FastRoute knows the current iteration index.
-  if (iter == -1 || congestion_file_name_.empty()) {
+  // check if the file name is defined
+  if (congestion_file_name_.empty()) {
     return;
   }
 
-  // delete rpt extension and add iteration number
+  // Modify the file name for each iteration
   std::string file_name = congestion_file_name_;
-  file_name = file_name.substr(0, file_name.size() - 4);
-  file_name += "-" + std::to_string(iter) + ".rpt";
+  if (iter != -1) {
+    // delete rpt extension
+    file_name = file_name.substr(0, file_name.size() - 4);
+    // add iteration number
+    file_name += "-" + std::to_string(iter) + ".rpt";
+  }
 
   odb::dbMarkerCategory* tool_category
       = db_->getChip()->getBlock()->findMarkerCategory(

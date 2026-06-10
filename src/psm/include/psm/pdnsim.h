@@ -8,7 +8,6 @@
 #include <optional>
 #include <string>
 
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/dbBlockCallBackObj.h"
 
@@ -67,7 +66,7 @@ class PDNSim : public odb::dbBlockCallBackObj
   };
 
   using IRDropByPoint = std::map<odb::Point, double>;
-  using IRDropByLayer = odb::PtrMap<odb::dbTechLayer, IRDropByPoint>;
+  using IRDropByLayer = std::map<odb::dbTechLayer*, IRDropByPoint>;
 
   PDNSim(utl::Logger* logger,
          odb::dbDatabase* db,
@@ -149,9 +148,9 @@ class PDNSim : public odb::dbBlockCallBackObj
 
   GeneratedSourceSettings generated_source_settings_;
 
-  odb::PtrMap<odb::dbNet, std::unique_ptr<IRSolver>> solvers_;
-  odb::PtrMap<odb::dbNet, std::map<sta::Scene*, double>> user_voltages_;
-  odb::PtrMap<odb::dbInst, std::map<sta::Scene*, float>> user_powers_;
+  std::map<odb::dbNet*, std::unique_ptr<IRSolver>> solvers_;
+  std::map<odb::dbNet*, std::map<sta::Scene*, double>> user_voltages_;
+  std::map<odb::dbInst*, std::map<sta::Scene*, float>> user_powers_;
 
   odb::dbNet* last_net_ = nullptr;
   sta::Scene* last_corner_ = nullptr;

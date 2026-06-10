@@ -15,16 +15,32 @@ swig_lib(NAME      rmp
 add_library(rmp_lib
     Restructure.cpp
     annealing_strategy.cpp
+    original_annealing_strategy.cpp
+    cone_manager.cpp
+    cone_mcts_strategy.cpp
+    cone_remap_strategy.cpp
+    improved_annealing_strategy.cpp
+    improved_annealingv2_strategy.cpp
     delay_optimization_strategy.cpp
     genetic_strategy.cpp
     gia.cpp
+    iterative_restructure.cpp
+    mcts_strategy.cpp
     slack_tuning_strategy.cpp
     utils.cpp
     zero_slack_strategy.cpp
 )
 
 # For ABC headers
-set_source_files_properties(annealing_strategy.cpp
+set_source_files_properties(
+  annealing_strategy.cpp
+  original_annealing_strategy.cpp
+  cone_manager.cpp
+  cone_mcts_strategy.cpp
+  cone_remap_strategy.cpp
+  improved_annealing_strategy.cpp
+  iterative_restructure.cpp
+  mcts_strategy.cpp
   PROPERTIES COMPILE_FLAGS "-Wno-error=redundant-decls -Wno-error=unused-variable -Wno-error=unused-but-set-variable"
 )
 
@@ -36,6 +52,7 @@ target_sources(rmp
 messages(
 TARGET rmp
 OUTPUT_DIR ..
+SOURCE_DIR .
 )
 
 target_include_directories(rmp
@@ -57,6 +74,7 @@ target_link_libraries(rmp_lib
   PUBLIC
     odb
     dbSta_lib
+    dpl_lib
     OpenSTA
     rsz_lib
     utl_lib

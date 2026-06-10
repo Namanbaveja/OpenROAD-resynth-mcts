@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /home/mani-deep-g -name \"giaSyn*.c\" -o -name \"giaSyn*.h\" 2>/dev/null | head -10)",
+      "Read(//home/mani-deep-g/**)",
+      "Bash(cmake --version)",
+      "Bash(ninja --version)",
+      "Bash(make --version)",
+      "Bash(cmake3 --version)",
+      "Read(//usr/**)",
+      "Bash(apt list *)",
+      "Bash(dpkg -l cmake*)",
+      "Bash(ls /usr/bin/gcc* /usr/bin/g++* /usr/bin/bison* /usr/bin/flex* /usr/bin/swig* 2>/dev/null; ls /usr/local/bin/cmake* 2>/dev/null; ls /snap/bin/cmake* 2>/dev/null)",
+      "Read(//snap/bin/**)",
+      "Bash(swig -version)",
+      "Bash(dpkg -l swig* cmake*)",
+      "Bash(sudo /home/mani-deep-g/OpenROAD/etc/DependencyInstaller.sh -base)",
+      "Bash(make rmp *)",
+      "WebFetch(domain:pld.ttu.ee)",
+      "Bash(wget -q https://raw.githubusercontent.com/YosysHQ/picorv32/master/picorv32.v -O /home/mani-deep-g/OpenROAD/src/rmp/test/benchmark_cts/final_designs/picorv32/picorv32.v)",
+      "Bash(wget -q \"https://s2.smu.edu/~dhoungninou/Benchmarks/ISCAS89/VERILOG/s526n.v\" -O s526n.v)",
+      "Bash(wget -q \"https://s2.smu.edu/~dhoungninou/Benchmarks/ISCAS89/VERILOG/s1494.v\" -O s1494.v)",
+      "WebSearch",
+      "Bash(wget -q \"https://api.github.com/repos/freecores/simple_spi/contents/rtl/verilog\" -O -)",
+      "Bash(wget -q \"https://api.github.com/repos/freecores/wb_conmax/contents/rtl/verilog\" -O -)"
+    ]
+  }
+}

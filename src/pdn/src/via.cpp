@@ -20,7 +20,6 @@
 #include "boost/polygon/polygon.hpp"
 #include "connect.h"
 #include "grid.h"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/dbShape.h"
 #include "odb/dbTransform.h"
@@ -380,7 +379,7 @@ DbVia::ViaLayerShape DbTechVia::generate(
     odb::dbWireShapeType type,
     int x,
     int y,
-    const odb::PtrSet<odb::dbTechLayer>& ongrid,
+    const std::set<odb::dbTechLayer*>& ongrid,
     utl::Logger* logger)
 {
   TechLayer bottom(via_->getBottomLayer());
@@ -531,7 +530,7 @@ odb::Rect DbTechVia::getViaRect(bool include_enclosure,
 }
 
 std::string DbTechVia::getViaName(
-    const odb::PtrSet<odb::dbTechLayer>& ongrid) const
+    const std::set<odb::dbTechLayer*>& ongrid) const
 {
   const std::string seperator = "_";
   std::string name = via_->getName();
@@ -652,7 +651,7 @@ DbVia::ViaLayerShape DbGenerateVia::generate(
     odb::dbWireShapeType type,
     int x,
     int y,
-    const odb::PtrSet<odb::dbTechLayer>& ongrid,
+    const std::set<odb::dbTechLayer*>& ongrid,
     utl::Logger* logger)
 {
   const std::string via_name = getViaName();
@@ -759,7 +758,7 @@ DbVia::ViaLayerShape DbArrayVia::generate(
     odb::dbWireShapeType type,
     int x,
     int y,
-    const odb::PtrSet<odb::dbTechLayer>& ongrid,
+    const std::set<odb::dbTechLayer*>& ongrid,
     utl::Logger* logger)
 {
   const odb::Rect core_via_rect = core_via_->getViaRect(false, true);
@@ -850,7 +849,7 @@ DbVia::ViaLayerShape DbSplitCutVia::generate(
     odb::dbWireShapeType type,
     int x,
     int y,
-    const odb::PtrSet<odb::dbTechLayer>& ongrid,
+    const std::set<odb::dbTechLayer*>& ongrid,
     utl::Logger* logger)
 {
   TechLayer* horizontal = nullptr;
@@ -926,7 +925,7 @@ DbVia::ViaLayerShape DbGenerateStackedVia::generate(
     odb::dbWireShapeType type,
     int x,
     int y,
-    const odb::PtrSet<odb::dbTechLayer>& ongrid,
+    const std::set<odb::dbTechLayer*>& ongrid,
     utl::Logger* logger)
 {
   for (const auto& layer : layers_) {
@@ -1042,7 +1041,7 @@ DbVia::ViaLayerShape DbGenerateStackedVia::generate(
         auto* generator = via->getGenerator();
         if (!generator->recheckConstraints(patch_shape_rect, true)) {
           // failed recheck, need to ripup entire stack
-          odb::PtrSet<odb::dbSBox> shapes;
+          std::set<odb::dbSBox*> shapes;
           for (const auto& [rect, box] : via_shapes.bottom) {
             shapes.insert(box);
           }
@@ -1130,7 +1129,7 @@ DbVia::ViaLayerShape DbGenerateDummyVia::generate(
     odb::dbWireShapeType /* type */,
     int x,
     int y,
-    const odb::PtrSet<odb::dbTechLayer>& ongrid,
+    const std::set<odb::dbTechLayer*>& ongrid,
     utl::Logger* logger)
 {
   odb::dbTransform xfm({x, y});
@@ -2427,7 +2426,7 @@ GenerateViaGenerator::GenerateViaGenerator(utl::Logger* logger,
 {
   const uint32_t layer_count = rule_->getViaLayerRuleCount();
 
-  odb::PtrMap<odb::dbTechLayer, uint32_t> layer_map;
+  std::map<odb::dbTechLayer*, uint32_t> layer_map;
   std::vector<odb::dbTechLayer*> layers;
   for (uint32_t l = 0; l < layer_count; l++) {
     odb::dbTechLayer* layer = rule_->getViaLayerRule(l)->getLayer();
@@ -2942,8 +2941,8 @@ void Via::writeToDb(odb::dbSWire* wire,
       = [this, &obstructions](
             const ShapePtr& shape,
             const std::set<DbVia::ViaLayerShape::RectBoxPair>& via_shapes)
-      -> odb::PtrSet<odb::dbSBox> {
-    odb::PtrSet<odb::dbSBox> ripup;
+      -> std::set<odb::dbSBox*> {
+    std::set<odb::dbSBox*> ripup;
 
     const odb::Rect& rect = shape->getRect();
     odb::Rect new_shape = rect;
@@ -3001,16 +3000,16 @@ void Via::writeToDb(odb::dbSWire* wire,
     return ripup;
   };
 
-  const odb::PtrSet<odb::dbSBox> ripup_shapes_bottom
+  const std::set<odb::dbSBox*> ripup_shapes_bottom
       = check_shapes(lower_, shapes.bottom);
-  const odb::PtrSet<odb::dbSBox> ripup_shapes_top
+  const std::set<odb::dbSBox*> ripup_shapes_top
       = check_shapes(upper_, shapes.top);
 
-  odb::PtrSet<odb::dbSBox> ripup_shapes;
+  std::set<odb::dbSBox*> ripup_shapes;
   ripup_shapes.insert(ripup_shapes_bottom.begin(), ripup_shapes_bottom.end());
   ripup_shapes.insert(ripup_shapes_top.begin(), ripup_shapes_top.end());
 
-  odb::PtrSet<odb::dbSBox> ripup_vias_middle;
+  std::set<odb::dbSBox*> ripup_vias_middle;
   for (const auto& [middle_rect, box] : shapes.middle) {
     for (auto* ripup_via : ripup_shapes) {
       const odb::Rect ripup_area = ripup_via->getBox();
@@ -3026,7 +3025,7 @@ void Via::writeToDb(odb::dbSWire* wire,
     // Check if via stack continuity will be broken
 
     // Collect remaining shapes
-    odb::PtrSet<odb::dbTechLayer> layers;
+    std::set<odb::dbTechLayer*> layers;
     for (const auto& viashapes : {shapes.bottom, shapes.middle, shapes.top}) {
       for (const auto& [rect, box] : viashapes) {
         if (ripup_shapes.find(box) == ripup_shapes.end()) {

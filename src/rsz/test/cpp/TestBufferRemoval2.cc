@@ -147,7 +147,7 @@ class BufRemTest2 : public tst::Nangate45Fixture
   ant::AntennaChecker ant_;
   grt::GlobalRouter grt_;
   est::EstimateParasitics ep_;
-  Resizer resizer_;
+  rsz::Resizer resizer_;
 
   sta::LibertyLibrary* library_{nullptr};
   sta::dbNetwork* db_network_{nullptr};

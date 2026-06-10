@@ -15,9 +15,6 @@ cc_library(
         "*.h",
     ]),
     hdrs = ["//src/odb:include/odb/3dblox.h"],
-    includes = [
-        "../../include",
-    ],
     deps = [
         "//src/odb/src/db",
         "//src/odb/src/defin",

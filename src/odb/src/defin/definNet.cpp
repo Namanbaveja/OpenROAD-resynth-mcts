@@ -233,7 +233,6 @@ void definNet::wire(dbWireType type)
 
   _wire_type = type;
   _taper_rule = nullptr;
-  _prev_junction_id = -1;
 }
 
 void definNet::path(const char* layer_name)
@@ -279,7 +278,6 @@ void definNet::pathBegin(const char* layer_name)
   } else {
     _wire_encoder.newPath(_cur_layer, _wire_type);
   }
-  _prev_junction_id = -1;
 }
 
 void definNet::pathTaper(const char* layer)
@@ -314,7 +312,7 @@ void definNet::pathPoint(int x, int y)
   _prev_x = dbdist(x);
   _prev_y = dbdist(y);
 
-  _prev_junction_id = _wire_encoder.addPoint(_prev_x, _prev_y);
+  _wire_encoder.addPoint(_prev_x, _prev_y);
 }
 
 void definNet::pathPoint(int x, int y, int ext)
@@ -326,37 +324,7 @@ void definNet::pathPoint(int x, int y, int ext)
   _prev_x = dbdist(x);
   _prev_y = dbdist(y);
 
-  _prev_junction_id = _wire_encoder.addPoint(_prev_x, _prev_y, dbdist(ext));
-}
-
-void definNet::pathVirtualPoint(int x, int y)
-{
-  if (_wire == nullptr) {
-    return;
-  }
-
-  if (_cur_layer == nullptr || _prev_junction_id < 0) {
-    _logger->warn(utl::ODB,
-                  469,
-                  "error: VIRTUAL routing point in net {} does not follow a "
-                  "routing point",
-                  _cur_net->getName());
-    ++_errors;
-    dbWire::destroy(_wire);
-    _wire = nullptr;
-    return;
-  }
-
-  if (_taper_rule) {
-    _wire_encoder.newPathVirtualWire(
-        _prev_junction_id, _cur_layer, _wire_type, _taper_rule);
-  } else {
-    _wire_encoder.newPathVirtualWire(_prev_junction_id, _cur_layer, _wire_type);
-  }
-
-  _prev_x = dbdist(x);
-  _prev_y = dbdist(y);
-  _prev_junction_id = _wire_encoder.addPoint(_prev_x, _prev_y);
+  _wire_encoder.addPoint(_prev_x, _prev_y, dbdist(ext));
 }
 
 void definNet::getUniqueViaName(std::string& viaName)

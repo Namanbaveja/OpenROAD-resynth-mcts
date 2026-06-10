@@ -46,7 +46,10 @@ std::vector<sta::Vertex*> GetEndpoints(sta::dbSta* sta,
   for (sta::Vertex* vertex : sta->endpoints()) {
     sta::Pin* pin = vertex->pin();
     sta::PortDirection* direction = network->direction(vertex->pin());
-    if (!direction->isInput()) {
+    // Include both FF D pins (input) and primary output ports (output).
+    // Output ports with set_output_delay have real setup timing endpoints
+    // and are missed by input-only filtering.
+    if (!direction->isInput() && !direction->isOutput()) {
       continue;
     }
 

@@ -11,7 +11,6 @@
 #include <string>
 #include <utility>
 
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 
 namespace ord {
@@ -35,7 +34,7 @@ class Blif
        const std::string& const1_cell,
        const std::string& const1_cell_port,
        int call_id);
-  void setReplaceableInstances(odb::PtrSet<odb::dbInst>& insts);
+  void setReplaceableInstances(std::set<odb::dbInst*>& insts);
   void addReplaceableInstance(odb::dbInst* inst);
   bool writeBlif(const char* file_name, bool write_arrival_requireds = false);
   bool readBlif(const char* file_name, odb::dbBlock* block);
@@ -46,7 +45,7 @@ class Blif
   void addRequired(sta::Pin* pin, const std::string& net_name);
 
  private:
-  odb::PtrSet<odb::dbInst> instances_to_optimize_;
+  std::set<odb::dbInst*> instances_to_optimize_;
   utl::Logger* logger_;
   sta::dbSta* open_sta_ = nullptr;
   std::string const0_cell_;

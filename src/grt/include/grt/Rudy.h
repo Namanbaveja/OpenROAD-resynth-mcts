@@ -5,8 +5,6 @@
 #include <optional>
 #include <set>
 #include <utility>
-
-#include "odb/PtrSetMap.h"
 // #define _CRTDBG_MAP_ALLOC
 
 #pragma once
@@ -43,7 +41,7 @@ class Rudy
    * \pre we need to call this function after `setGridConfig` and
    * `setWireWidth`.
    * */
-  void calculateRudy(std::optional<odb::PtrSet<odb::dbNet>*> selection
+  void calculateRudy(std::optional<std::set<odb::dbNet*>*> selection
                      = std::nullopt);
 
   /**

@@ -1,2 +1,38 @@
 test/abc.history
 test/results
+
+# ---- generated benchmark outputs ----
+test/qor_sa/
+test/qor_sa_tiered/
+test/qor_sa_orig/
+test/qor_mcts/
+test/qor_sa_topk5/
+test/qor_sa_cone/
+test/qor_*/
+
+# ---- generated files written into the bench-script dirs ----
+test/*_script/*/*.def
+test/*_script/*/*.v
+test/*_script/*/*.sdc
+test/*_script/*/*.tsv
+test/*_script/*/*.txt
+test/*_script/*/*.log
+test/*_script/*/*.odb
+
+# ---- large benchmark DEFs (keep only the small paper designs) ----
+test/benchmark_cts/final_cts/jpeg/
+test/benchmark_cts/final_cts/ethmac/
+test/benchmark_cts/final_cts/vga_led/
+test/benchmark_cts/final_cts/ibex/
+test/benchmark_cts/final_cts/ac97/
+test/benchmark_cts/final_cts/riscv32i/
+test/benchmark_cts/final_cts/tv80/
+test/benchmark_cts/final_cts/b12/
+test/benchmark_cts/final_cts/b14/
+test/benchmark_cts/final_cts/cva6/
+
+# ---- ASAP7 PDK libs (host separately; too large / licensed) ----
+test/asap7/
+
+# ---- remove ALL benchmark data (DEFs/SDCs are large; regenerate via ORFS) ----
+test/benchmark_cts/

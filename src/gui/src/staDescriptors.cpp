@@ -23,7 +23,6 @@
 #include "db_sta/dbNetwork.hh"
 #include "db_sta/dbSta.hh"
 #include "gui/gui.h"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/geom.h"
 #include "sta/ClkNetwork.hh"
@@ -109,7 +108,7 @@ void LibertyLibraryDescriptor::highlight(const std::any& object,
   auto network = sta_->getDbNetwork();
 
   sta::LibertyCellIterator cell_iter(library);
-  odb::PtrSet<odb::dbMaster> masters;
+  std::set<odb::dbMaster*> masters;
   while (cell_iter.hasNext()) {
     auto* master = network->staToDb(cell_iter.next());
     if (master != nullptr) {

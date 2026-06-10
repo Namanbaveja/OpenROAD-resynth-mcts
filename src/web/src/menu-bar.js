@@ -28,7 +28,6 @@ export function createMenuBar(app) {
         ]},
         { label: 'Windows', items: [
             { label: 'Layout Viewer', action: () => app.focusComponent('LayoutViewer') },
-            { label: '3D Viewer', action: () => app.focusComponent('3DViewer') },
             { label: 'Display Controls', action: () => app.focusComponent('DisplayControls') },
             { label: 'Inspector', action: () => app.focusComponent('Inspector') },
             { label: 'Tcl Console', action: () => app.focusComponent('TclConsole') },
@@ -311,7 +310,7 @@ function showPathDialog(app, title, tclCmd) {
                 cmd: `${tclCmd} ${path}`,
             });
 
-            if (resp.is_error) {
+            if (resp.error) {
                 errorDiv.textContent = resp.output || resp.result || 'Command failed';
                 errorDiv.style.display = '';
                 okBtn.disabled = false;

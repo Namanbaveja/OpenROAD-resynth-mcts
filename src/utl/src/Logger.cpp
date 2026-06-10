@@ -17,13 +17,17 @@
 #include <utility>
 
 #include "CommandLineProgress.h"
-#include "spdlog/common.h"
-#include "spdlog/logger.h"
+#include "utl/Metrics.h"
+#if SPDLOG_VERSION < 10601
+#include "spdlog/details/pattern_formatter.h"
+#else
 #include "spdlog/pattern_formatter.h"
+#endif
+#include "spdlog/common.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/ostream_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
-#include "utl/Metrics.h"
+#include "spdlog/spdlog.h"
 #include "utl/Progress.h"
 #include "utl/prometheus/metrics_server.h"
 #include "utl/prometheus/registry.h"
@@ -206,11 +210,6 @@ void Logger::addWarningMetrics()
 
 void Logger::finalizeMetrics()
 {
-  if (metrics_finalized_) {
-    return;
-  }
-  metrics_finalized_ = true;
-
   log_metric("flow__warnings__count", std::to_string(warning_count_));
   log_metric("flow__errors__count", std::to_string(error_count_));
 

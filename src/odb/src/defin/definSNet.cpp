@@ -14,7 +14,6 @@
 #include "create_box.h"
 #include "definPolygon.h"
 #include "definTypes.h"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/dbSet.h"
 #include "odb/dbShape.h"
@@ -566,7 +565,7 @@ void definSNet::connect_all(dbNet* net, const char* term)
   dbSet<dbITerm> iterms = _block->getITerms();
 
   net->setWildConnected();
-  odb::PtrMap<dbMTerm, int> matched_mterms;
+  std::map<dbMTerm*, int> matched_mterms;
   std::vector<dbMaster*> masters;
   _block->getMasters(masters);
   std::vector<dbMaster*>::iterator mitr;

@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "gui/heatMap.h"
-#include "odb/PtrSetMap.h"
 #include "odb/dbTypes.h"
 #include "psm/pdnsim.h"
 #include "sta/Sta.hh"
@@ -123,7 +122,7 @@ bool IRDropDataSource::populateMap()
   }
   ensureLayer();
 
-  odb::PtrMap<odb::dbTechLayer, PDNSim::IRDropByPoint> ir_drops;
+  std::map<odb::dbTechLayer*, PDNSim::IRDropByPoint> ir_drops;
 
   for (auto* layer : tech_->getLayers()) {
     psm_->getIRDropForLayer(net_, corner_, layer, ir_drops[layer]);

@@ -174,16 +174,12 @@ void Checker::checkFloatingChips(dbMarkerCategory* top_cat,
     auto* cat = dbMarkerCategory::createOrReplace(top_cat, "Floating chips");
     logger_->warn(utl::ODB, 151, "Found {} floating chip sets", groups.size());
     for (const auto& group : groups | std::views::reverse) {
-      // dbMarker::create returns nullptr once the category hits its
-      // max_markers_ limit; skip silently in that case to avoid a
-      // null-deref crash.
-      if (auto* marker = dbMarker::create(cat)) {
-        for (auto* chip : group) {
-          marker->addShape(chip->cuboid);
-          marker->addSource(chip->chip_inst_path.back());
-        }
-        marker->setComment("Isolated chip set starting with " + group[0]->name);
+      auto* marker = dbMarker::create(cat);
+      for (auto* chip : group) {
+        marker->addShape(chip->cuboid);
+        marker->addSource(chip->chip_inst_path.back());
       }
+      marker->setComment("Isolated chip set starting with " + group[0]->name);
     }
   }
 }
@@ -216,14 +212,13 @@ void Checker::checkOverlappingChips(dbMarkerCategory* top_cat,
     auto* cat = dbMarkerCategory::createOrReplace(top_cat, "Overlapping chips");
     logger_->warn(utl::ODB, 156, "Found {} overlapping chips", overlaps.size());
     for (const auto& [inst1, inst2] : overlaps) {
-      if (auto* marker = dbMarker::create(cat)) {
-        auto intersection = inst1->cuboid.intersect(inst2->cuboid);
-        marker->addShape(intersection);
-        marker->addSource(inst1->chip_inst_path.back());
-        marker->addSource(inst2->chip_inst_path.back());
-        marker->setComment(
-            fmt::format("Chips {} and {} overlap", inst1->name, inst2->name));
-      }
+      auto* marker = dbMarker::create(cat);
+      auto intersection = inst1->cuboid.intersect(inst2->cuboid);
+      marker->addShape(intersection);
+      marker->addSource(inst1->chip_inst_path.back());
+      marker->addSource(inst2->chip_inst_path.back());
+      marker->setComment(
+          fmt::format("Chips {} and {} overlap", inst1->name, inst2->name));
     }
   }
 }
@@ -243,13 +238,12 @@ void Checker::checkInternalExtUsage(dbMarkerCategory* top_cat,
                       464,
                       "Region {} is internal_ext but unused",
                       region.region_inst->getChipRegion()->getName());
-        if (auto* marker = dbMarker::create(cat)) {
-          marker->addSource(region.region_inst);
-          marker->addShape(region.cuboid);
-          marker->setComment(
-              fmt::format("Unused internal_ext region: {}",
-                          region.region_inst->getChipRegion()->getName()));
-        }
+        auto* marker = dbMarker::create(cat);
+        marker->addSource(region.region_inst);
+        marker->addShape(region.cuboid);
+        marker->setComment(
+            fmt::format("Unused internal_ext region: {}",
+                        region.region_inst->getChipRegion()->getName()));
       }
     }
   }
@@ -276,15 +270,14 @@ void Checker::checkConnectionRegions(dbMarkerCategory* top_cat,
       if (!cat) {
         cat = dbMarkerCategory::createOrReplace(top_cat, "Connection regions");
       }
-      if (auto* marker = dbMarker::create(cat)) {
-        marker->addSource(conn.connection);
-        std::string msg = fmt::format("Invalid connection {}: {} to {}",
-                                      conn.connection->getName(),
-                                      describe(conn.top_region, marker),
-                                      describe(conn.bottom_region, marker));
-        marker->setComment(msg);
-        logger_->warn(utl::ODB, 207, msg);
-      }
+      auto* marker = dbMarker::create(cat);
+      marker->addSource(conn.connection);
+      std::string msg = fmt::format("Invalid connection {}: {} to {}",
+                                    conn.connection->getName(),
+                                    describe(conn.top_region, marker),
+                                    describe(conn.bottom_region, marker));
+      marker->setComment(msg);
+      logger_->warn(utl::ODB, 207, msg);
       count++;
     }
   }
@@ -307,19 +300,15 @@ void Checker::checkBumpPhysicalAlignment(dbMarkerCategory* top_cat,
           if (!cat) {
             cat = dbMarkerCategory::createOrReplace(top_cat, "Bump Alignment");
           }
-          // dbMarker::create returns nullptr once the category hits its
-          // max_markers_ limit; skip the addSource/addShape/setComment
-          // chain to avoid a null-deref crash in that case.
-          if (auto* marker = dbMarker::create(cat)) {
-            marker->addSource(bump.bump_inst);
-            marker->addShape(Rect(p.x() - kBumpMarkerHalfSize,
-                                  p.y() - kBumpMarkerHalfSize,
-                                  p.x() + kBumpMarkerHalfSize,
-                                  p.y() + kBumpMarkerHalfSize));
-            marker->setComment(
-                fmt::format("Bump is outside its parent region {}",
-                            region.region_inst->getChipRegion()->getName()));
-          }
+          auto* marker = dbMarker::create(cat);
+          marker->addSource(bump.bump_inst);
+          marker->addShape(Rect(p.x() - kBumpMarkerHalfSize,
+                                p.y() - kBumpMarkerHalfSize,
+                                p.x() + kBumpMarkerHalfSize,
+                                p.y() + kBumpMarkerHalfSize));
+          marker->setComment(
+              fmt::format("Bump is outside its parent region {}",
+                          region.region_inst->getChipRegion()->getName()));
         }
       }
     }
@@ -390,22 +379,21 @@ void Checker::checkLogicalConnectivity(dbMarkerCategory* top_cat,
             cat = dbMarkerCategory::createOrReplace(top_cat,
                                                     "Logical Connectivity");
           }
-          if (auto* marker = dbMarker::create(cat)) {
-            marker->addSource(top_bump.bump_inst);
-            marker->addSource(bot_bump->bump_inst);
-            marker->addShape(conn.top_region->cuboid.intersect(
-                conn.bottom_region->cuboid));  // Mark overlap region
+          auto* marker = dbMarker::create(cat);
+          marker->addSource(top_bump.bump_inst);
+          marker->addSource(bot_bump->bump_inst);
+          marker->addShape(conn.top_region->cuboid.intersect(
+              conn.bottom_region->cuboid));  // Mark overlap region
 
-            std::string msg = fmt::format(
-                "Bumps at ({}, {}) align physically but logical connectivity "
-                "mismatch: Top bump {} vs Bottom bump {}",
-                p.x(),
-                p.y(),
-                get_net_name(&top_bump),
-                get_net_name(bot_bump));
-            marker->setComment(msg);
-            logger_->warn(utl::ODB, 208, msg);
-          }
+          std::string msg = fmt::format(
+              "Bumps at ({}, {}) align physically but logical connectivity "
+              "mismatch: Top bump {} vs Bottom bump {}",
+              p.x(),
+              p.y(),
+              get_net_name(&top_bump),
+              get_net_name(bot_bump));
+          marker->setComment(msg);
+          logger_->warn(utl::ODB, 208, msg);
         }
       }
     }

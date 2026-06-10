@@ -117,11 +117,6 @@ void TimingBase::setTimingNetWeightMax(float max)
   net_weight_max_ = max;
 }
 
-void TimingBase::setTimingNetsPercentage(float percentage)
-{
-  nets_percentage_ = percentage;
-}
-
 bool TimingBase::executeTimingDriven(bool run_journal_restore)
 {
   rs_->findResizeSlacks(run_journal_restore);
@@ -131,7 +126,6 @@ bool TimingBase::executeTimingDriven(bool run_journal_restore)
   }
 
   // get worst resize nets
-  rs_->setWorstSlackNetsPercent(nets_percentage_);
   sta::NetSeq worst_slack_nets = rs_->resizeWorstSlackNets();
 
   if (worst_slack_nets.empty()) {

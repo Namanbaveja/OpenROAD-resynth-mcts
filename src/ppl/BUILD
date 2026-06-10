@@ -47,7 +47,7 @@ cc_library(
         "//:ord",
         "//src/dbSta",
         "//src/gui",
-        "//src/odb/src/db",
+        "//src/odb",
         "//src/sta:opensta_lib",
         "//src/utl",
         "@boost.container_hash",

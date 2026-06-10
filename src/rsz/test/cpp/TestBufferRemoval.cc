@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright (c) 2023-2025, The OpenROAD Authors
 
+#include <unistd.h>
+
+#include <filesystem>
 #include <memory>
 #include <string>
 
@@ -8,6 +11,7 @@
 #include "db_sta/dbNetwork.hh"
 #include "db_sta/dbSta.hh"
 #include "est/EstimateParasitics.h"
+#include "gmock/gmock.h"
 #include "grt/GlobalRouter.h"
 #include "gtest/gtest.h"
 #include "odb/db.h"
@@ -16,9 +20,12 @@
 #include "odb/geom.h"
 #include "odb/lefin.h"
 #include "rsz/Resizer.hh"
+#include "sta/FuncExpr.hh"
 #include "sta/Graph.hh"
 #include "sta/Liberty.hh"
 #include "sta/NetworkClass.hh"
+#include "sta/Search.hh"
+#include "sta/SearchClass.hh"
 #include "sta/Sta.hh"
 #include "stt/SteinerTreeBuilder.h"
 #include "tst/fixture.h"
@@ -109,7 +116,7 @@ class BufRemTest : public tst::Nangate45Fixture
   ant::AntennaChecker ant_;
   grt::GlobalRouter grt_;
   est::EstimateParasitics ep_;
-  Resizer resizer_;
+  rsz::Resizer resizer_;
 
   sta::LibertyLibrary* library_{nullptr};
   sta::dbNetwork* db_network_{nullptr};

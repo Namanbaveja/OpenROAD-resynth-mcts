@@ -15,7 +15,6 @@
 #include "boost/geometry/geometries/point_xy.hpp"
 #include "boost/geometry/geometry.hpp"
 #include "boost/geometry/index/rtree.hpp"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/dbTypes.h"
 #include "odb/geom.h"
@@ -111,7 +110,7 @@ class DbVia
                                  odb::dbWireShapeType type,
                                  int x,
                                  int y,
-                                 const odb::PtrSet<odb::dbTechLayer>& ongrid,
+                                 const std::set<odb::dbTechLayer*>& ongrid,
                                  utl::Logger* logger)
       = 0;
 
@@ -192,7 +191,7 @@ class DbTechVia : public DbBaseVia
                          odb::dbWireShapeType type,
                          int x,
                          int y,
-                         const odb::PtrSet<odb::dbTechLayer>& ongrid,
+                         const std::set<odb::dbTechLayer*>& ongrid,
                          utl::Logger* logger) override;
 
   bool requiresPatch() const override { return rows_ > 1 || cols_ > 1; }
@@ -223,7 +222,7 @@ class DbTechVia : public DbBaseVia
   odb::Point via_center_;
   std::set<odb::Point> via_centers_;
 
-  std::string getViaName(const odb::PtrSet<odb::dbTechLayer>& ongrid) const;
+  std::string getViaName(const std::set<odb::dbTechLayer*>& ongrid) const;
   bool isArray() const { return rows_ > 1 || cols_ > 1; }
 };
 
@@ -251,7 +250,7 @@ class DbGenerateVia : public DbBaseVia
                          odb::dbWireShapeType type,
                          int x,
                          int y,
-                         const odb::PtrSet<odb::dbTechLayer>& ongrid,
+                         const std::set<odb::dbTechLayer*>& ongrid,
                          utl::Logger* logger) override;
 
   std::string getName() const override;
@@ -306,7 +305,7 @@ class DbSplitCutVia : public DbVia
                          odb::dbWireShapeType type,
                          int x,
                          int y,
-                         const odb::PtrSet<odb::dbTechLayer>& ongrid,
+                         const std::set<odb::dbTechLayer*>& ongrid,
                          utl::Logger* logger) override;
 
   ViaReport getViaReport() const override;
@@ -342,7 +341,7 @@ class DbArrayVia : public DbVia
                          odb::dbWireShapeType type,
                          int x,
                          int y,
-                         const odb::PtrSet<odb::dbTechLayer>& ongrid,
+                         const std::set<odb::dbTechLayer*>& ongrid,
                          utl::Logger* logger) override;
 
   bool requiresPatch() const override { return true; }
@@ -377,7 +376,7 @@ class DbGenerateStackedVia : public DbVia
                          odb::dbWireShapeType type,
                          int x,
                          int y,
-                         const odb::PtrSet<odb::dbTechLayer>& ongrid,
+                         const std::set<odb::dbTechLayer*>& ongrid,
                          utl::Logger* logger) override;
 
   ViaReport getViaReport() const override;
@@ -404,7 +403,7 @@ class DbGenerateDummyVia : public DbVia
                          odb::dbWireShapeType /* type */,
                          int x,
                          int y,
-                         const odb::PtrSet<odb::dbTechLayer>& ongrid,
+                         const std::set<odb::dbTechLayer*>& ongrid,
                          utl::Logger* logger) override;
 
   ViaReport getViaReport() const override { return {}; }

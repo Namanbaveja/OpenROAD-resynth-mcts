@@ -9,11 +9,7 @@ package(features = ["layering_check"])
 
 cc_library(
     name = "test_helpers",
-    testonly = True,
     hdrs = ["cpp/HelperCallBack.h"],
-    includes = [
-        "cpp",
-    ],
     deps = ["//src/dst"],
 )
 
@@ -47,7 +43,6 @@ cc_test(
 # without making it part of `bazel test //src/...`.
 cc_binary(
     name = "dst_distributed_test",
-    testonly = True,
     srcs = [
         "cpp/TestDistributed.cc",
         "cpp/stubs.cpp",

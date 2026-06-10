@@ -682,13 +682,15 @@ std::pair<bool, bool> RouteBase::routability(
            / nbVec_[i]->getNesterovInstsArea())
           * 100.0f;
     log_->info(GPL,
-               86,
-               "Inflated area:              {:10.3f} um^2 ({:+.2f}%)",
+               51,
+               format_label_um2_with_delta,
+               "Inflated area:",
                inflated_area_delta_microns,
                inflated_area_delta_percentage);
     log_->info(GPL,
                52,
-               "Placement target density:   {:10.4f}",
+               format_label_float,
+               "Placement target density:",
                nbVec_[i]->getTargetDensity());
 
     prev_white_space_area[i] = nbVec_[i]->getWhiteSpaceArea();
@@ -760,39 +762,45 @@ std::pair<bool, bool> RouteBase::routability(
     log_->info(
         GPL,
         58,
-        "White space area:           {:10.3f} um^2 ({:+.2f}%)",
+        format_label_um2_with_delta,
+        "White space area:",
         block->dbuAreaToMicrons(nbVec_[i]->getWhiteSpaceArea()),
         percentDiff(prev_white_space_area[i], nbVec_[i]->getWhiteSpaceArea()));
 
     log_->info(GPL,
                59,
-               "Movable instances area:     {:10.3f} um^2 ({:+.2f}%)",
+               format_label_um2_with_delta,
+               "Movable instances area:",
                block->dbuAreaToMicrons(nbVec_[i]->getMovableArea()),
                percentDiff(prev_movable_area[i], nbVec_[i]->getMovableArea()));
 
     log_->info(GPL,
                60,
-               "Total filler area:          {:10.3f} um^2 ({:+.2f}%)",
+               format_label_um2_with_delta,
+               "Total filler area:",
                block->dbuAreaToMicrons(nbVec_[i]->getTotalFillerArea()),
                percentDiff(prev_total_filler_area[i],
                            nbVec_[i]->getTotalFillerArea()));
 
     log_->info(GPL,
                61,
-               "Total non-inflated area:    {:10.3f} um^2 ({:+.2f}%)",
+               format_label_um2_with_delta,
+               "Total non-inflated area:",
                block->dbuAreaToMicrons(new_total_gcells_area),
                percentDiff(prev_total_gcells_area[i], new_total_gcells_area));
 
     log_->info(
         GPL,
         62,
-        "Total inflated area:        {:10.3f} um^2 ({:+.2f}%)",
+        format_label_um2_with_delta,
+        "Total inflated area:",
         block->dbuAreaToMicrons(new_expected_gcells_area),
         percentDiff(prev_expected_gcells_area[i], new_expected_gcells_area));
 
     log_->info(GPL,
                63,
-               "New Target Density:         {:10.4f}",
+               format_label_float,
+               "New Target Density:",
                nbVec_[i]->getTargetDensity());
 
     // update densitySizes for all gCell

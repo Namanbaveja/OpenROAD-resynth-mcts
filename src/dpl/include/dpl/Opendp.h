@@ -20,7 +20,6 @@
 #include "boost/geometry/geometries/point_xy.hpp"
 #include "boost/geometry/geometry.hpp"
 #include "boost/geometry/index/rtree.hpp"
-#include "odb/PtrSetMap.h"
 #include "utl/Logger.h"
 // NOLINTNEXTLINE
 #include "boost/geometry/strategies/strategies.hpp"  // Required implictly by rtree
@@ -102,6 +101,15 @@ class Opendp
 
   void legalCellPos(odb::dbInst* db_inst);  // call from rsz
   void initMacrosAndGrid();                 // call from rsz
+
+  // Lightweight incremental legalization for a small number of newly-inserted
+  // cells (e.g. from SA re-synthesis).  Existing placed cells are treated as
+  // fixed; diamond search places only the unplaced cells.  Silent — no
+  // movement-summary output — so it can be called inside a tight SA loop.
+  // max_displacement values are in sites/rows; pass 0 for built-in defaults.
+  // Returns the number of cells that could not find a legal slot (0 = success).
+  int legalizeNewCellsIncremental(int max_displacement_x,
+                                  int max_displacement_y);
 
   // legalize/report
   // max_displacment is in sites. use zero for defaults.
@@ -188,7 +196,7 @@ class Opendp
   // row height -> GapFillers, by implant layer
   using GapFillersByHeight = std::map<DbuY, GapFillers>;
 
-  using MasterByImplant = odb::PtrMap<odb::dbTechLayer, dbMasterSeq>;
+  using MasterByImplant = std::map<odb::dbTechLayer*, dbMasterSeq>;
 
   using YCoordToGap = std::map<DbuY, std::vector<std::unique_ptr<GapInfo>>>;
 
@@ -377,8 +385,8 @@ class Opendp
 
   // Filler placement.
   // gap (in sites) -> seq of masters by implant and row height
-  odb::PtrMap<odb::dbTechLayer, GapFillersByHeight> gap_fillers_;
-  odb::PtrMap<odb::dbMaster, int> filler_count_;
+  std::map<odb::dbTechLayer*, GapFillersByHeight> gap_fillers_;
+  std::map<odb::dbMaster*, int> filler_count_;
   bool have_fillers_ = false;
 
   // Decap placement.
@@ -400,6 +408,7 @@ class Opendp
   bool deep_iterative_debug_ = false;
   bool incremental_ = false;
   bool use_negotiation_ = false;
+  bool silent_ = false;  // suppress report-level output (used during SA loop)
 
   // Magic numbers
   static constexpr double group_refine_percent_ = .05;

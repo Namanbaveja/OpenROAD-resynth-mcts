@@ -11,8 +11,5 @@ source Nangate45/Nangate45.rc
 set_wire_rc -layer metal3
 estimate_parasitics -placement
 
-if { ![info exists move_tracker_level] } {
-  set move_tracker_level 1
-}
-set_debug_level RSZ move_tracker $move_tracker_level
+set_debug_level RSZ move_tracker 1
 repair_timing -setup {*}$repair_args

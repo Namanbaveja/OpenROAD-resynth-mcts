@@ -18,7 +18,6 @@
 #include "debug_gui.h"
 #include "ir_network.h"
 #include "node.h"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/geom.h"
 #include "psm/pdnsim.h"
@@ -65,8 +64,8 @@ class IRSolver
     std::set<ITermNode*, Node::Compare> unconnected_iterms;
   };
 
-  using UserVoltages = odb::PtrMap<odb::dbNet, std::map<sta::Scene*, Voltage>>;
-  using UserPowers = odb::PtrMap<odb::dbInst, std::map<sta::Scene*, Power>>;
+  using UserVoltages = std::map<odb::dbNet*, std::map<sta::Scene*, Voltage>>;
+  using UserPowers = std::map<odb::dbInst*, std::map<sta::Scene*, Power>>;
 
   IRSolver(odb::dbNet* net,
            bool floorplanning,
@@ -138,7 +137,7 @@ class IRSolver
   bool checkBTerms() const;
   bool checkShort() const;
 
-  odb::PtrMap<odb::dbInst, Power> getInstancePower(sta::Scene* corner) const;
+  std::map<odb::dbInst*, Power> getInstancePower(sta::Scene* corner) const;
   Voltage getPowerNetVoltage(sta::Scene* corner) const;
 
   Connection::ConnectionMap<Current> generateCurrentMap(

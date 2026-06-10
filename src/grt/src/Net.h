@@ -75,8 +75,6 @@ class Net
     is_connected_to_pad_or_macro_ = is_connected;
   }
   bool isConnectedToPadOrMacro() const { return is_connected_to_pad_or_macro_; }
-  void setIsResAware(bool is_res_aware) { is_res_aware_ = is_res_aware; }
-  bool isResAware() const { return is_res_aware_; }
 
  private:
   int getNumBTermsAboveMaxLayer(odb::dbTechLayer* max_routing_layer);
@@ -94,7 +92,6 @@ class Net
   bool restore_route_from_guides_;
   bool are_segments_restored_;
   bool is_connected_to_pad_or_macro_;
-  bool is_res_aware_;
 };
 
 }  // namespace grt

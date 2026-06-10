@@ -3,7 +3,10 @@ import utl
 import odb
 from collections import defaultdict
 
-import pdn
+try:
+    import pdn
+except ModuleNotFoundError:
+    import openroad as pdn
 
 
 #  In tcl land, this lives in OpenRoad.tcl. However, it seems to be only called
@@ -801,16 +804,16 @@ def repair_pdn_vias(design, *, net=None, all=False):
     if not bool(net) and not all:
         utl.error(utl.PDN, 31192, "Must use either 'net' or 'all' arguments.")
 
-    nets = pdn.net_set()
+    nets = []
     if bool(net):
         net = design.getBlock().findNet(net)
         if net is None:
             utl.error(utl.PDN, 31190, f"Unable to find net: {net}")
-        nets.insert(net)
+        nets.append(net)
 
     if all:
         for net in design.getBlock().getNets():
             if net.getSigType() == "POWER" or net.getSigType() == "GROUND":
-                nets.insert(net)
+                nets.append(net)
 
     pdngen.repairVias(nets)

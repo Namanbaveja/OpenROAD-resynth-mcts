@@ -17,7 +17,6 @@
 #include "Objects.h"
 #include "boost/icl/interval_map.hpp"
 #include "dpl/Opendp.h"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/dbTypes.h"
 #include "odb/geom.h"
@@ -177,7 +176,7 @@ class Grid
 
  private:
   // Maps a site to the right orientation to use in a given row
-  using SiteToOrientation = odb::PtrMap<odb::dbSite, odb::dbOrientType>;
+  using SiteToOrientation = std::map<odb::dbSite*, odb::dbOrientType>;
 
   // Used to combine the SiteToOrientation for two intervals when merged
   template <typename MapType>

@@ -27,7 +27,7 @@ cc_library(
     deps = [
         "//src/dbSta",
         "//src/dbSta:dbNetwork",
-        "//src/odb/src/db",
+        "//src/odb",
         "//src/sta:opensta_lib",
         "//src/utl",
     ],
@@ -49,7 +49,7 @@ cc_library(
     ],
     deps = [
         "//:ord",
-        "//src/odb/src/db",
+        "//src/odb",
         "//src/utl",
         "@tcl_lang//:tcl",
     ],

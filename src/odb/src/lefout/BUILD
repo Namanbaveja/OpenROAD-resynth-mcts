@@ -12,9 +12,6 @@ cc_library(
     name = "lefout",
     srcs = glob(["*.cpp"]),
     hdrs = ["//src/odb:include/odb/lefout.h"],
-    includes = [
-        "../../include",
-    ],
     deps = [
         "//src/odb/src/db",
         "//src/utl",

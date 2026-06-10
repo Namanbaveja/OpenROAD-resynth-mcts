@@ -15,9 +15,6 @@ cc_library(
         "*.h",
     ]),
     hdrs = ["//src/odb:include/odb/defin.h"],
-    includes = [
-        "../../include",
-    ],
     deps = [
         "//src/odb/src/db",
         "//src/odb/src/def",

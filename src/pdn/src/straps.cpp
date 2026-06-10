@@ -20,7 +20,6 @@
 #include "connect.h"
 #include "domain.h"
 #include "grid.h"
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/dbTransform.h"
 #include "odb/dbTypes.h"
@@ -660,10 +659,10 @@ void PadDirectConnectionStraps::initialize(ConnectionType type)
              pins_.size());
 }
 
-odb::PtrMap<odb::dbTechLayer, std::vector<odb::dbBox*>>
+std::map<odb::dbTechLayer*, std::vector<odb::dbBox*>>
 PadDirectConnectionStraps::getPinsByLayer() const
 {
-  odb::PtrMap<odb::dbTechLayer, std::vector<odb::dbBox*>> pins;
+  std::map<odb::dbTechLayer*, std::vector<odb::dbBox*>> pins;
 
   auto* mterm = iterm_->getMTerm();
   for (auto* pin : mterm->getMPins()) {
@@ -1046,9 +1045,8 @@ void PadDirectConnectionStraps::makeShapesFacingCore(
     return;
   }
 
-  odb::PtrSet<odb::dbTechLayer> pin_layers;
-  odb::PtrMap<odb::dbTechLayer, odb::PtrSet<odb::dbTechLayer>>
-      connectable_layers;
+  std::set<odb::dbTechLayer*> pin_layers;
+  std::map<odb::dbTechLayer*, std::set<odb::dbTechLayer*>> connectable_layers;
   for (const auto& [layer, shapes] : other_shapes) {
     for (const auto& shape : shapes) {
       if (isTargetShape(shape.get())) {
@@ -1621,7 +1619,7 @@ RepairChannelStraps::RepairChannelStraps(
     Straps* target,
     odb::dbTechLayer* connect_to,
     const Shape::ObstructionTreeMap& other_shapes,
-    const odb::PtrSet<odb::dbNet>& nets,
+    const std::set<odb::dbNet*>& nets,
     const odb::Rect& area,
     const odb::Rect& available_area,
     const odb::Rect& obs_check_area)
@@ -2055,7 +2053,7 @@ void RepairChannelStraps::report() const
 
 Straps* RepairChannelStraps::getTargetStrap(Grid* grid, odb::dbTechLayer* layer)
 {
-  odb::PtrSet<odb::dbTechLayer> connects_to;
+  std::set<odb::dbTechLayer*> connects_to;
   for (const auto& connect : grid->getConnect()) {
     if (connect->getLowerLayer() == layer) {
       connects_to.insert(connect->getUpperLayer());

@@ -69,3 +69,12 @@ projectview.bazelproject
 tmp/
 
 .playwright-mcp
+
+# ---- archive/backup files (never commit) ----
+*.tar
+*.tar.xz
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+.github/workflows/

@@ -19,11 +19,13 @@
 #include <utility>
 #include <vector>
 
-// Establish abc namespace, must include before abcapis.h
-#include "misc/util/abc_namespaces.h"  // IWYU pragma: keep
-
-// other includes
 #include "annealing_strategy.h"
+#include "original_annealing_strategy.h"
+#include "cone_mcts_strategy.h"
+#include "cone_remap_strategy.h"
+#include "improved_annealing_strategy.h"
+#include "improved_annealingv2_strategy.h"
+#include "mcts_strategy.h"
 #include "base/main/abcapis.h"
 #include "cut/abc_init.h"
 #include "cut/blif.h"
@@ -91,6 +93,20 @@ void Restructure::resynth(sta::Scene* corner)
       open_sta_, name_generator_, resizer_, logger_);
 }
 
+void Restructure::resynthOriginalAnnealing(sta::Scene* corner)
+{
+  // Upstream Antmicro SA: WNS-only objective, no tiered eval, no top-K,
+  // no pre-SA repair_setup.  Used as the resynth_annealing baseline.
+  OriginalAnnealingStrategy orig_strategy(corner,
+                                          slack_threshold_,
+                                          static_cast<uint64_t>(annealing_seed_),
+                                          annealing_temp_,
+                                          annealing_iters_,
+                                          annealing_init_ops_,
+                                          original_annealing_percentage_);
+  orig_strategy.OptimizeDesign(open_sta_, name_generator_, resizer_, logger_);
+}
+
 void Restructure::resynthAnnealing(sta::Scene* corner)
 {
   AnnealingStrategy annealing_strategy(corner,
@@ -99,9 +115,91 @@ void Restructure::resynthAnnealing(sta::Scene* corner)
                                        annealing_temp_,
                                        annealing_iters_,
                                        annealing_revert_after_,
-                                       annealing_init_ops_);
+                                       annealing_init_ops_,
+                                       annealing_percentage_,
+                                       sa_eval_mode_);
+  annealing_strategy.setFinalTopK(annealing_final_topk_);
   annealing_strategy.OptimizeDesign(
       open_sta_, name_generator_, resizer_, logger_);
+}
+
+void Restructure::resynthImprovedAnnealing(sta::Scene* corner)
+{
+  ImprovedAnnealingStrategy improved_annealing_strategy(
+      corner,
+      slack_threshold_,
+      improved_annealing_seed_,
+      improved_annealing_temp_,
+      improved_annealing_iters_,
+      improved_annealing_revert_after_,
+      improved_annealing_init_ops_);
+  improved_annealing_strategy.OptimizeDesign(
+      open_sta_, name_generator_, resizer_, logger_);
+}
+
+void Restructure::resynthImprovedAnnealingv2(sta::Scene* corner)
+{
+  ImprovedAnnealingStrategyv2 improved_annealingv2_strategy(
+      corner,
+      slack_threshold_,
+      improved_annealingv2_seed_,
+      improved_annealingv2_temp_,
+      improved_annealingv2_iters_,
+      improved_annealingv2_revert_after_,
+      improved_annealingv2_init_ops_);
+  improved_annealingv2_strategy.OptimizeDesign(
+      open_sta_, name_generator_, resizer_, logger_);
+}
+
+void Restructure::resynthMcts(sta::Scene* corner)
+{
+  MctsStrategy mcts_strategy(corner,
+                              slack_threshold_,
+                              mcts_seed_,
+                              mcts_ucb_constant_,
+                              mcts_iters_,
+                              mcts_max_depth_,
+                              mcts_init_ops_,
+                              mcts_percentage_,
+                              mcts_wns_pct_,
+                              mcts_eval_mode_);
+  mcts_strategy.OptimizeDesign(open_sta_, name_generator_, resizer_, logger_);
+}
+
+void Restructure::resynthMctsCones(sta::Scene* corner)
+{
+  ConeMctsStrategy strategy(corner,
+                             slack_threshold_,
+                             mcts_cones_iters_,
+                             mcts_cones_max_depth_,
+                             mcts_cones_bfs_hops_,
+                             mcts_cones_max_instances_,
+                             mcts_cones_seed_,
+                             mcts_cones_ucb_constant_);
+  strategy.OptimizeDesign(open_sta_, name_generator_, resizer_, logger_);
+}
+
+void Restructure::resynthCpaRemap(sta::Scene* corner)
+{
+  // Convert proximity from microns to ODB database units.
+  int proximity_dbu = 0;
+  if (cpa_remap_proximity_um_ > 0.0f) {
+    const int dbu_per_um
+        = db_->getChip()->getBlock()->getDbUnitsPerMicron();
+    proximity_dbu = static_cast<int>(cpa_remap_proximity_um_
+                                     * static_cast<float>(dbu_per_um));
+  }
+  ConeCpaRemapStrategy strategy(corner,
+                                slack_threshold_,
+                                cpa_remap_bfs_hops_,
+                                cpa_remap_max_instances_,
+                                proximity_dbu,
+                                cpa_remap_long_wire_ps_,
+                                cpa_remap_mcts_iters_,
+                                cpa_remap_mcts_max_depth_,
+                                cpa_remap_mcts_ucb_constant_,
+                                cpa_remap_max_cones_per_round_);
+  strategy.OptimizeDesign(open_sta_, name_generator_, resizer_, logger_);
 }
 
 void Restructure::resynthGenetic(sta::Scene* corner)
@@ -349,6 +447,9 @@ void Restructure::getEndPoints(sta::PinSet& ends,
     if (!is_area_mode_) {
       sta::Path* path
           = open_sta_->vertexWorstSlackPath(end_point, sta::MinMax::max());
+      if (!path) {
+        continue;
+      }
       sta::PathExpanded expanded(path, open_sta_);
       // Members in expanded include gate output and net so divide by 2
       logger_->report("Found path of depth {}", expanded.size() / 2);
@@ -442,7 +543,7 @@ void Restructure::removeConstCells()
 
   open_sta_->clearLogicConstants();
   open_sta_->findLogicConstants();
-  odb::PtrSet<odb::dbInst> const_insts;
+  std::set<odb::dbInst*> const_insts;
   int const_cnt = 1;
   for (auto inst : block_->getInsts()) {
     int outputs = 0;

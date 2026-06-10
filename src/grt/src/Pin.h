@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "odb/geom.h"
 
@@ -34,13 +33,13 @@ class Pin
   Pin(odb::dbITerm* iterm,
       const odb::Point& position,
       const std::vector<odb::dbTechLayer*>& layers,
-      const odb::PtrMap<odb::dbTechLayer, std::vector<odb::Rect>>&
+      const std::map<odb::dbTechLayer*, std::vector<odb::Rect>>&
           boxes_per_layer,
       bool connected_to_pad_or_macro);
   Pin(odb::dbBTerm* bterm,
       const odb::Point& position,
       const std::vector<odb::dbTechLayer*>& layers,
-      const odb::PtrMap<odb::dbTechLayer, std::vector<odb::Rect>>&
+      const std::map<odb::dbTechLayer*, std::vector<odb::Rect>>&
           boxes_per_layer,
       const odb::Point& die_center);
 

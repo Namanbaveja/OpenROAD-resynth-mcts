@@ -857,13 +857,9 @@ int definReader::netCallback(DefParser::defrCallbackType_e /* unused: type */,
             break;
           }
 
-          case DefParser::DEFIPATH_VIRTUALPOINT: {
-            int x;
-            int y;
-            path->getVirtualPoint(&x, &y);
-            netR->pathVirtualPoint(x, y);
+          case DefParser::DEFIPATH_VIRTUALPOINT:
+            UNSUPPORTED("VIRTUAL in net's routing is unsupported");
             break;
-          }
 
           case DefParser::DEFIPATH_MASK:
             netR->pathColor(path->getMask());

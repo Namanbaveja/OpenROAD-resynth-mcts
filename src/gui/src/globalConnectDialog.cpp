@@ -18,7 +18,6 @@
 #include <stdexcept>
 #include <string>
 
-#include "odb/PtrSetMap.h"
 #include "odb/db.h"
 #include "utl/Logger.h"
 
@@ -180,7 +179,7 @@ void GlobalConnectDialog::runRulesWithForce()
 void GlobalConnectDialog::clearRules()
 {
   auto rule_set = block_->getGlobalConnects();
-  odb::PtrSet<odb::dbGlobalConnect> rules(rule_set.begin(), rule_set.end());
+  std::set<odb::dbGlobalConnect*> rules(rule_set.begin(), rule_set.end());
   for (auto* rule : rules) {
     deleteRule(rule);
   }

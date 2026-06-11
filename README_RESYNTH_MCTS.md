@@ -15,6 +15,12 @@ the space of ABC restructuring recipes against this physically-grounded score.
 This repository is a **fork of [OpenROAD](https://github.com/The-OpenROAD-Project/OpenROAD)**;
 all new work lives in [`src/rmp/`](src/rmp/).
 
+📁 **Project resources (report, full results, large benchmark designs):**
+[Google Drive folder](https://drive.google.com/drive/folders/1SGoeknWmd-TkpzAIeDg4N5tQ1yzzqFSo?usp=drive_link)
+— contains the full project material (thesis report, complete result logs, and
+the large benchmark designs / generated data that are not committed here to
+keep the repository lightweight).
+
 ---
 
 ## Table of Contents
